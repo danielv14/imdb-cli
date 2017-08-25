@@ -37,5 +37,5 @@ inquirer.prompt(question).then((answer) => {
   let query = new queryHelper(answer.searchString);
   let result = new IMDb(query.getSanitizedQuery());
   // result.createURL();
-  result.log();
+  result.scrape();  
 })
