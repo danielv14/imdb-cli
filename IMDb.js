@@ -35,7 +35,7 @@ exports.IMDb = class {
   log() {
     console.log(`The query is: ${this.query}`);
     console.log(`The url is: ${this.url}`);
-    console.log('results is ${this.results}')
+    console.log(`results is ${this.results}`);
   }
 
   scrape() {
