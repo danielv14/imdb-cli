@@ -1,8 +1,8 @@
 const request = require('request');
 const cheerio = require('cheerio');
 const ora = require('ora');
+var tab = require('table-master');
 
-require('console.table');
 
 
 const { queryHelper } = require('./queryHelper');
