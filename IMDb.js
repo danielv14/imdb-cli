@@ -2,6 +2,8 @@ const request = require('request');
 const cheerio = require('cheerio');
 const ora = require('ora');
 var tab = require('table-master');
+const chalk = require('chalk');
+const figlet = require('figlet');
 
 
 
@@ -22,9 +24,14 @@ exports.IMDb = class {
     this.query = query;
     this.url = `http://www.imdb.com/search/title?title=${this.query}`;
     this.results = [];
-    this.patternID = /tt(.*)[0-9]/g;
+    this.outputColor = chalk.hex('#f3ce13');
   }
-      
+
+  static displayHeader() {
+    var imdbColor = chalk.hex('#f3ce13');
+    console.log(imdbColor(figlet.textSync('IMDb')));
+  }
+  
   log() {
     console.log(`The query is: ${this.query}`);
     console.log(`The url is: ${this.url}`);
@@ -45,12 +52,14 @@ exports.IMDb = class {
           this.results.push({
             'title': $(value).text(),
             'year': $(value).next().text().replace(/\D/g, ''),
-            'imdbID': queryHelper.getIMDbID(href)
+            'imdbID': this.outputColor(queryHelper.getIMDbID(href))
           });
           // stop the loop after 10 items
           return index < 14;
         });
+
         spinner.stop();        
+        
         console.table(this.results);
 
       } else {
