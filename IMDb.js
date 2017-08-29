@@ -18,10 +18,12 @@ exports.IMDb = class {
   
   /**
    * Creates an instance of IMDb.
-   * @param {string} query 
+   * @param {string} query - search query that has been sanitized
+   * @param {string} originalQuery - The original search query  
   */
-  constructor(query) {
+  constructor(query, originalQuery) {
     this.query = query;
+    this.originalQuery = originalQuery;
     this.url = `http://www.imdb.com/search/title?title=${this.query}`;
     this.results = [];
     this.outputColor = chalk.hex('#f3ce13');
@@ -51,7 +53,7 @@ exports.IMDb = class {
 
   
   /**
-   * push to results array
+   * Push to results array
    * 
    * @param {any} title 
    * @param {any} year 
@@ -61,6 +63,18 @@ exports.IMDb = class {
     this.results.push({title, year, imdbID});
   } 
 
+
+  /**
+   * Render either a table with search results 
+   * or a message of no search results were found
+   */
+  renderSearchResults() {
+    if (Object.keys(this.results).length === 0) {
+      console.log(chalk.red(`Could not find any search results for "${this.originalQuery}". Please try again.`));
+    } else {
+      console.table(this.results);
+    }
+  }
   
   /**
    * Perform the scrape of imdb to gather search results
@@ -82,13 +96,12 @@ exports.IMDb = class {
           
           this.createSearchResult(title, year, imdbID);
 
-          // stop the loop after 10 items
+          // stop the loop after 15 items
           return index < 14;
         });
 
         spinner.stop();        
-        
-        console.table(this.results);
+        this.renderSearchResults();
 
       } else {
         spinner.stop();        
