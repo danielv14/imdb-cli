@@ -25,4 +25,16 @@ exports.queryHelper = class {
   getSanitizedQuery() {
     return this.query.replace(/ /g, '+');
   }
+
+  
+  /**
+   * Match IMDb ID's from hrefs
+   * 
+   * @static
+   * @param {string} href 
+   * @returns {string} containing IMDb ID
+   */
+  static getIMDbID(href) {
+    return href.match(/tt(.*)[0-9]/g).toString();
+  }
 }
