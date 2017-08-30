@@ -1,4 +1,4 @@
-# IMDb-scraper
+# IMDb-CLI
 
 This is a repo for a Node-CLI that scrapes IMDb for search results and it's primary purpose is to have a fast and easy way to get IMDb-ID's for movies and series.
 
