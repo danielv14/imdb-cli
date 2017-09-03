@@ -1,7 +1,7 @@
 const request = require('request');
 const cheerio = require('cheerio');
 const ora = require('ora');
-var tab = require('table-master');
+const tab = require('table-master');
 const chalk = require('chalk');
 const figlet = require('figlet');
 
