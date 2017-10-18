@@ -36,7 +36,7 @@ exports.IMDb = class {
    * @static
    */
   static displayHeader() {
-    var imdbColor = chalk.hex('#f3ce13');
+    const imdbColor = chalk.hex('#f3ce13');
     console.log(imdbColor(figlet.textSync('IMDb')));
   }
 
@@ -86,13 +86,13 @@ exports.IMDb = class {
       
       if (!error) {
 
-        let $ = cheerio.load(body);
+        const $ = cheerio.load(body);
 
         $('.lister-item-header a').each((index, value) => {
           // create variables to be pushed as search result
-          let title = $(value).text();
-          let year = $(value).next().text().replace(/\D/g, '');
-          let imdbID = this.outputColor(queryHelper.getIMDbID($(value).attr('href')));
+          const title = $(value).text();
+          const year = $(value).next().text().replace(/\D/g, '');
+          const imdbID = this.outputColor(queryHelper.getIMDbID($(value).attr('href')));
           
           this.createSearchResult(title, year, imdbID);
 
