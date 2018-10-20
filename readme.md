@@ -16,3 +16,4 @@ The CLI currently supports the following features:
 ## Planned Features
 Below is a list with currently planned features for the CLI
 * Clearer seperation of movies and tv-series when displaying the search result
+* Add option to display short descriptions about the movies and tv-series to make it easier to grasp the search results
