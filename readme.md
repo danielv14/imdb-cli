@@ -12,3 +12,7 @@ This will display the CLI-prompt where the user is asked to enter a search query
 ## Current Features
 The CLI currently supports the following features:
 * Searching IMDb and scraping the website for search results.
+
+## Planned Features
+Below is a list with currently planned features for the CLI
+* Clearer seperation of movies and tv-series when displaying the search result
