@@ -8,3 +8,7 @@ Clone the repo, install it globally with `npm install -g` and then type the foll
 $ imdb
 ```
 This will display the CLI-prompt where the user is asked to enter a search query. If search results are found the CLI will display it in table where titles, years and IMDb-ID's are displayed. 
+
+## Current Features
+The CLI currently supports the following features:
+* Searching IMDb and scraping the website for search results.
