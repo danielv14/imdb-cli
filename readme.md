@@ -1,6 +1,6 @@
 # IMDb-CLI
 
-This is a repo for a Node-CLI that scrapes IMDb for search results and it's primary purpose is to have a fast and easy way to get IMDb-ID's for movies and series.
+This is a repo for a Node-CLI that scrapes IMDb for search results and it's primary purpose is to have a fast and easy way to get IMDb-ID's for movies and tv-series.
 
 ## Usage
 Clone the repo, install it globally with `npm install -g` and then type the following into a terminal
