@@ -1,13 +1,9 @@
-const request = require('request');
-const cheerio = require('cheerio');
 const ora = require('ora');
 const tab = require('table-master');
 const chalk = require('chalk');
 const figlet = require('figlet');
-
-
-
-const { queryHelper } = require('./queryHelper');
+const axios = require('axios');
+require('dotenv').config()
 
 /**
  * Class to  handle scraping of IMDb
@@ -21,12 +17,14 @@ exports.IMDb = class {
    * @param {string} query - search query that has been sanitized
    * @param {string} originalQuery - The original search query  
   */
-  constructor(query, originalQuery) {
+  constructor({query, originalQuery, showPlot = false, searchByType = null}) {
     this.query = query;
     this.originalQuery = originalQuery;
     this.url = `http://www.imdb.com/search/title?title=${this.query}`;
     this.results = [];
     this.outputColor = chalk.hex('#f3ce13');
+    this.showPlot = showPlot
+    this.searchByType = searchByType
   }
 
   
@@ -37,7 +35,23 @@ exports.IMDb = class {
    */
   static displayHeader() {
     const imdbColor = chalk.hex('#f3ce13');
-    console.log(imdbColor(figlet.textSync('IMDb')));
+    console.log(imdbColor(figlet.textSync('IMDb CLI')));
+  }
+
+  /**
+   * Static method to determine type, i.e movies or series is to be used when creating the IMDb class
+   * @param {Boolean} movies 
+   * @param {Boolean} series
+   * @returns {String} 
+   */
+  static determineType({movies, series}) {
+    if (movies) {
+      return 'movie'
+    }
+    if (series) {
+      return 'series'
+    }
+    return null
   }
 
   
@@ -54,13 +68,10 @@ exports.IMDb = class {
   
   /**
    * Push to results array
-   * 
-   * @param {any} title 
-   * @param {any} year 
-   * @param {any} imdbID 
+   * @param {Array} results Array of result objects to later display
    */
-  createSearchResult(title, year, imdbID) {
-    this.results.push({title, year, imdbID});
+  createSearchResult(results) {
+    results.forEach(result => this.results.push(result))
   } 
 
 
@@ -75,38 +86,95 @@ exports.IMDb = class {
       console.table(this.results);
     }
   }
+
+  /**
+   * Get the api key to use for omdb api
+   * @returns {String}
+   */
+  getAPIKey() {
+    return process.env.API_KEY;
+  }
+
+  /**
+   * Get search result promise by query
+   * @param {String} query
+   * @returns {Promise} 
+   */
+  getSearchResult(query) {
+    if (this.searchByType) {
+      return axios.get(`http://www.omdbapi.com?s=${query}&apikey=${this.getAPIKey()}&type=${this.searchByType}`)
+    }
+    return axios.get(`http://www.omdbapi.com?s=${query}&apikey=${this.getAPIKey()}`)
+  }
+
+  getItemByIMDbId(imdbId) {
+    return axios.get(`http://www.omdbapi.com?i=${imdbId}&apikey=${this.getAPIKey()}`)
+  }
+
+  /**
+   * 
+   * @param {String} text string to truncate
+   * @param {Integer} [limit=40] Limit truncation to a specific amount of chars 
+   */
+  getTruncatedText({text, limit = 40}) {
+    return `${text.substring(0, limit)}...`
+  }
+
+  /**
+   * Get a formatted search result with plot to display from response object
+   * @param {Object} input 
+   * @returns {Object}
+   */
+  getFormattedSearchResultWithPlot(input) {
+    return {
+      'Title': input.Title,
+      'Year': input.Year,
+      'Type': input.Type,
+      'Plot': this.getTruncatedText({text: input.Plot}),
+      'IMDb ID': this.outputColor(input.imdbID),
+    }
+  }
+
+  /**
+   * Get a formatted search result to display from response object
+   * @param {Object} input 
+   * @returns {Object}
+   */
+  getFormattedSearchResult(input) {
+    return {
+      'Title': input.Title,
+      'Year': input.Year,
+      'Type': input.Type,
+      'IMDb ID': this.outputColor(input.imdbID),
+    }
+  }
   
   /**
-   * Perform the scrape of imdb to gather search results
-   * 
+   * Perform search for movies/series
    */
-  scrape() {
-    const spinner = ora('Searching IMDb. Please wait...').start();    
-    request(this.url, (error, response, body) => {
-      
-      if (!error) {
-
-        const $ = cheerio.load(body);
-
-        $('.lister-item-header a').each((index, value) => {
-          // create variables to be pushed as search result
-          const title = $(value).text();
-          const year = $(value).next().text().replace(/\D/g, '');
-          const imdbID = this.outputColor(queryHelper.getIMDbID($(value).attr('href')));
-          
-          this.createSearchResult(title, year, imdbID);
-
-          // stop the loop after 15 items
-          return index < 14;
-        });
-
-        spinner.stop();        
-        this.renderSearchResults();
-
+  async search() {
+    const spinner = ora('Searching IMDb. Please wait...').start(); 
+    try {
+      const { data } = await this.getSearchResult(this.query);
+      if (this.showPlot) {
+        // Plot does not exist in response when getting regular search result.
+        // Need to fetch the individual search results by imdb id to get their plots
+        const fullPromises = data.Search.map(result => this.getItemByIMDbId(result.imdbID))
+        const promises = await Promise.all(fullPromises)
+        const results = promises.map(result => result.data)
+        const searchResult = results.map(this.getFormattedSearchResultWithPlot.bind(this))
+        this.createSearchResult(searchResult)
+        spinner.stop()
+        this.renderSearchResults()
       } else {
-        spinner.stop();        
-        console.log(`Program exit with error: ${error}`);
+        const searchResult = data.Search.map(this.getFormattedSearchResult.bind(this))
+        this.createSearchResult(searchResult)
+        spinner.stop()
+        this.renderSearchResults()
       }
-    });
+    } catch(e) {
+      spinner.stop();        
+      console.log(`Program exit with error: ${e}`);
+    }
   }
 }
