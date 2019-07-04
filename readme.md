@@ -22,9 +22,10 @@ This will display the CLI-prompt where the user is asked to enter a search query
 ## Current Features
 The CLI currently supports the following features:
 * Searching movies and series to get their imdb id's.
+* Use parameters when starting the application to display plot and search for either movies or series only
 
 ## Road Map
 Below is a list with currently planned features for the CLI
-* Clearer seperation of movies and tv-series when displaying the search result
-* Add option to display short descriptions about the movies and tv-series to make it easier to grasp the search results
-* Make CLI more flexible by passing flags (-m --movies or -s --series) to only fetch movies or tv series as search result. Building a good flexible base for passing other flags aswell.
+- [x] Clearer seperation of movies and tv-series when displaying the search result
+- [x] Add option to display short descriptions about the movies and tv-series to make it easier to grasp the search results
+- [x] Make CLI more flexible by passing flags (-m --movies or -s --series) to only fetch movies or tv series as search result. Building a good flexible base for passing other flags aswell.
