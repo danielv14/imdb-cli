@@ -6,10 +6,12 @@ This is a repo for a Node-CLI that Searches IMDb for and it's primary purpose is
 
 The IMDB-CLI needs an api key from OMDb to work properly. You can easily get your own API key from the site.
 
-Once you have your api key you need to create a `.env` file in the project root folder with the following content:
+Once you have your api key you need to create a `config.json` file in the project root folder with the following content:
 
-```
-API_KEY='YOUR-API-KEY'
+```json
+{
+  "apikey": "YOUR-API-KEY"
+}
 ```
 
 ## Usage
