@@ -28,7 +28,6 @@ IMDb.displayHeader();
 // prompt the user for a search string
 inquirer.prompt(question).then((answer) => {
   const query = new queryHelper(answer.searchString);
-  const result = new IMDb(query.getSanitizedQuery(), answer.searchString);
-  // result.createURL();
-  result.scrape();  
+  const imdbInstance = new IMDb({query: query.getSanitizedQuery(), originalquery: answer.searchString});
+  imdbInstance.search();  
 })

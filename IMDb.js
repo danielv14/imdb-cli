@@ -1,13 +1,9 @@
-const request = require('request');
-const cheerio = require('cheerio');
 const ora = require('ora');
 const tab = require('table-master');
 const chalk = require('chalk');
 const figlet = require('figlet');
-
-
-
-const { queryHelper } = require('./queryHelper');
+const axios = require('axios');
+require('dotenv').config()
 
 /**
  * Class to  handle scraping of IMDb
@@ -21,7 +17,7 @@ exports.IMDb = class {
    * @param {string} query - search query that has been sanitized
    * @param {string} originalQuery - The original search query  
   */
-  constructor(query, originalQuery) {
+  constructor({query, originalQuery}) {
     this.query = query;
     this.originalQuery = originalQuery;
     this.url = `http://www.imdb.com/search/title?title=${this.query}`;
@@ -37,7 +33,7 @@ exports.IMDb = class {
    */
   static displayHeader() {
     const imdbColor = chalk.hex('#f3ce13');
-    console.log(imdbColor(figlet.textSync('IMDb')));
+    console.log(imdbColor(figlet.textSync('IMDb CLI')));
   }
 
   
@@ -54,13 +50,10 @@ exports.IMDb = class {
   
   /**
    * Push to results array
-   * 
-   * @param {any} title 
-   * @param {any} year 
-   * @param {any} imdbID 
+   * @param {Array} results Array of result objects to later display
    */
-  createSearchResult(title, year, imdbID) {
-    this.results.push({title, year, imdbID});
+  createSearchResult(results) {
+    results.forEach(result => this.results.push(result))
   } 
 
 
@@ -75,38 +68,46 @@ exports.IMDb = class {
       console.table(this.results);
     }
   }
+
+  /**
+   * Get the api key to use for omdb api
+   * @returns {String}
+   */
+  getAPIKey() {
+    return process.env.API_KEY;
+  }
+
+  /**
+   * Get search result promise by query
+   * @param {String} query
+   * @returns {Promise} 
+   */
+  getSearchResult(query) {
+    return axios.get(`http://www.omdbapi.com?s=${query}&apikey=${this.getAPIKey()}`)
+  }
   
   /**
-   * Perform the scrape of imdb to gather search results
+   * Perform search for movies/series
    * 
    */
-  scrape() {
-    const spinner = ora('Searching IMDb. Please wait...').start();    
-    request(this.url, (error, response, body) => {
-      
-      if (!error) {
-
-        const $ = cheerio.load(body);
-
-        $('.lister-item-header a').each((index, value) => {
-          // create variables to be pushed as search result
-          const title = $(value).text();
-          const year = $(value).next().text().replace(/\D/g, '');
-          const imdbID = this.outputColor(queryHelper.getIMDbID($(value).attr('href')));
-          
-          this.createSearchResult(title, year, imdbID);
-
-          // stop the loop after 15 items
-          return index < 14;
-        });
-
-        spinner.stop();        
-        this.renderSearchResults();
-
-      } else {
-        spinner.stop();        
-        console.log(`Program exit with error: ${error}`);
-      }
-    });
+  async search() {
+    const spinner = ora('Searching IMDb. Please wait...').start(); 
+    try {
+      const { data } = await this.getSearchResult(this.query);
+      const searchResult = data.Search.map(result => {
+        return {
+          'Title': result.Title,
+          'Year': result.Year,
+          'Type': result.Type,
+          'IMDb ID': this.outputColor(result.imdbID)
+        }
+      })
+      spinner.stop()
+      this.createSearchResult(searchResult)
+      this.renderSearchResults()
+    } catch(e) {
+      spinner.stop();        
+      console.log(`Program exit with error: ${error}`);
+    }
   }
 }
