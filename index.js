@@ -12,8 +12,14 @@ const inputError = 'Please enter a query to search for...';
 program
   .version(pkg.version)
   .option('-P, --plot', 'Show plot in search result')
+  .option('-M, --movies', 'Search by movies only. Cannot be used alongside "series" parameter')
+  .option('-S --series', 'Search by series only. Cannot be used alongside "movie" parameter')
   .parse(process.argv);
 
+if (program.movies && program.series) {
+  console.log('Cannot use both "movie" and "series" parameter together.');
+  return;
+}
 
 // setup of question
 const question = [
@@ -37,7 +43,8 @@ inquirer.prompt(question).then((answer) => {
   const imdbInstance = new IMDb({
     query: query.getSanitizedQuery(),
     originalquery: answer.searchString,
-    showPlot: !!program.plot
+    showPlot: !!program.plot,
+    searchByType: IMDb.determineType({movies: program.movies, series: program.series})
   });
   imdbInstance.search();  
 })

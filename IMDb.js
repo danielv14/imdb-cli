@@ -17,13 +17,14 @@ exports.IMDb = class {
    * @param {string} query - search query that has been sanitized
    * @param {string} originalQuery - The original search query  
   */
-  constructor({query, originalQuery, showPlot = false}) {
+  constructor({query, originalQuery, showPlot = false, searchByType = null}) {
     this.query = query;
     this.originalQuery = originalQuery;
     this.url = `http://www.imdb.com/search/title?title=${this.query}`;
     this.results = [];
     this.outputColor = chalk.hex('#f3ce13');
     this.showPlot = showPlot
+    this.searchByType = searchByType
   }
 
   
@@ -35,6 +36,22 @@ exports.IMDb = class {
   static displayHeader() {
     const imdbColor = chalk.hex('#f3ce13');
     console.log(imdbColor(figlet.textSync('IMDb CLI')));
+  }
+
+  /**
+   * Static method to determine type, i.e movies or series is to be used when creating the IMDb class
+   * @param {Boolean} movies 
+   * @param {Boolean} series
+   * @returns {String} 
+   */
+  static determineType({movies, series}) {
+    if (movies) {
+      return 'movie'
+    }
+    if (series) {
+      return 'series'
+    }
+    return null
   }
 
   
@@ -84,6 +101,9 @@ exports.IMDb = class {
    * @returns {Promise} 
    */
   getSearchResult(query) {
+    if (this.searchByType) {
+      return axios.get(`http://www.omdbapi.com?s=${query}&apikey=${this.getAPIKey()}&type=${this.searchByType}`)
+    }
     return axios.get(`http://www.omdbapi.com?s=${query}&apikey=${this.getAPIKey()}`)
   }
 
@@ -155,7 +175,7 @@ exports.IMDb = class {
       }
     } catch(e) {
       spinner.stop();        
-      console.log(`Program exit with error: ${error}`);
+      console.log(`Program exit with error: ${e}`);
     }
   }
 }
