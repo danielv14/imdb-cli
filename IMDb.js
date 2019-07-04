@@ -17,12 +17,13 @@ exports.IMDb = class {
    * @param {string} query - search query that has been sanitized
    * @param {string} originalQuery - The original search query  
   */
-  constructor({query, originalQuery}) {
+  constructor({query, originalQuery, showPlot = false}) {
     this.query = query;
     this.originalQuery = originalQuery;
     this.url = `http://www.imdb.com/search/title?title=${this.query}`;
     this.results = [];
     this.outputColor = chalk.hex('#f3ce13');
+    this.showPlot = showPlot
   }
 
   
@@ -85,6 +86,48 @@ exports.IMDb = class {
   getSearchResult(query) {
     return axios.get(`http://www.omdbapi.com?s=${query}&apikey=${this.getAPIKey()}`)
   }
+
+  getItemByIMDbId(imdbId) {
+    return axios.get(`http://www.omdbapi.com?i=${imdbId}&apikey=${this.getAPIKey()}`)
+  }
+
+  /**
+   * 
+   * @param {String} text string to truncate
+   * @param {Integer} [limit=40] Limit truncation to a specific amount of chars 
+   */
+  getTruncatedText({text, limit = 40}) {
+    return `${text.substring(0, limit)}...`
+  }
+
+  /**
+   * Get a formatted search result with plot to display from response object
+   * @param {Object} input 
+   * @returns {Object}
+   */
+  getFormattedSearchResultWithPlot(input) {
+    return {
+      'Title': input.Title,
+      'Year': input.Year,
+      'Type': input.Type,
+      'Plot': this.getTruncatedText({text: input.Plot}),
+      'IMDb ID': this.outputColor(input.imdbID),
+    }
+  }
+
+    /**
+   * Get a formatted search result to display from response object
+   * @param {Object} input 
+   * @returns {Object}
+   */
+  getFormattedSearchResult(input) {
+    return {
+      'Title': input.Title,
+      'Year': input.Year,
+      'Type': input.Type,
+      'IMDb ID': this.outputColor(input.imdbID),
+    }
+  }
   
   /**
    * Perform search for movies/series
@@ -94,17 +137,22 @@ exports.IMDb = class {
     const spinner = ora('Searching IMDb. Please wait...').start(); 
     try {
       const { data } = await this.getSearchResult(this.query);
-      const searchResult = data.Search.map(result => {
-        return {
-          'Title': result.Title,
-          'Year': result.Year,
-          'Type': result.Type,
-          'IMDb ID': this.outputColor(result.imdbID)
-        }
-      })
-      spinner.stop()
-      this.createSearchResult(searchResult)
-      this.renderSearchResults()
+      if (this.showPlot) {
+        // Plot does not exist in response when getting regular search result.
+        // Need to fetch the individual search results by imdb id to get their plots
+        const fullPromises = data.Search.map(result => this.getItemByIMDbId(result.imdbID))
+        const promises = await Promise.all(fullPromises)
+        const results = promises.map(result => result.data)
+        const searchResult = results.map(this.getFormattedSearchResultWithPlot.bind(this))
+        this.createSearchResult(searchResult)
+        spinner.stop()
+        this.renderSearchResults()
+      } else {
+        const searchResult = data.Search.map(this.getFormattedSearchResult.bind(this))
+        this.createSearchResult(searchResult)
+        spinner.stop()
+        this.renderSearchResults()
+      }
     } catch(e) {
       spinner.stop();        
       console.log(`Program exit with error: ${error}`);
