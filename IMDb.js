@@ -3,7 +3,7 @@ const tab = require('table-master');
 const chalk = require('chalk');
 const figlet = require('figlet');
 const axios = require('axios');
-require('dotenv').config()
+const config = require('./config')
 
 /**
  * Class to  handle scraping of IMDb
@@ -92,7 +92,7 @@ exports.IMDb = class {
    * @returns {String}
    */
   getAPIKey() {
-    return process.env.API_KEY;
+    return config.apikey;
   }
 
   /**
