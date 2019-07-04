@@ -11,9 +11,10 @@ const inputError = 'Please enter a query to search for...';
  
 program
   .version(pkg.version)
-  .option('-P, --plot', 'Show plot in search result')
-  .option('-M, --movies', 'Search by movies only. Cannot be used alongside "series" parameter')
-  .option('-S --series', 'Search by series only. Cannot be used alongside "movie" parameter')
+  .option('-p, --plot', 'Show plot in search result')
+  .option('-t, --title [title]', 'Search by a specific title. If omitted the program will prompt you for a title to search for')
+  .option('-m, --movies', 'Search by movies only. Cannot be used alongside "series" parameter')
+  .option('-s --series', 'Search by series only. Cannot be used alongside "movie" parameter')
   .parse(process.argv);
 
 if (program.movies && program.series) {
@@ -37,14 +38,25 @@ clear();
 // display colorful IMDb header
 IMDb.displayHeader();
 
-// prompt the user for a search string
-inquirer.prompt(question).then((answer) => {
-  const query = new queryHelper(answer.searchString);
+if (program.title) {
+  const query = new queryHelper(program.title);
   const imdbInstance = new IMDb({
     query: query.getSanitizedQuery(),
-    originalquery: answer.searchString,
+    originalquery: program.title,
     showPlot: !!program.plot,
     searchByType: IMDb.determineType({movies: program.movies, series: program.series})
   });
   imdbInstance.search();  
-})
+} else {
+  // prompt the user for a search string
+  inquirer.prompt(question).then((answer) => {
+    const query = new queryHelper(answer.searchString);
+    const imdbInstance = new IMDb({
+      query: query.getSanitizedQuery(),
+      originalquery: answer.searchString,
+      showPlot: !!program.plot,
+      searchByType: IMDb.determineType({movies: program.movies, series: program.series})
+    });
+    imdbInstance.search();  
+  })
+}
