@@ -135,7 +135,7 @@ exports.IMDb = class {
     }
   }
 
-    /**
+  /**
    * Get a formatted search result to display from response object
    * @param {Object} input 
    * @returns {Object}
@@ -151,7 +151,6 @@ exports.IMDb = class {
   
   /**
    * Perform search for movies/series
-   * 
    */
   async search() {
     const spinner = ora('Searching IMDb. Please wait...').start(); 
