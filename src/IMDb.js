@@ -58,16 +58,6 @@ exports.IMDb = class {
   }
 
   /**
-   * Log the query, url and results to the console
-   *
-   */
-  log() {
-    console.log(`The query is: ${this.query}`);
-    console.log(`The url is: ${this.url}`);
-    console.log(`results is ${this.results}`);
-  }
-
-  /**
    * Push to results array
    * @param {Array} results Array of result objects to later display
    */
