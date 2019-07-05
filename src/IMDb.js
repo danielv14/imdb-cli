@@ -5,6 +5,7 @@ const chalk = require('chalk');
 const figlet = require('figlet');
 const axios = require('axios');
 const config = require('../config');
+const { sanitizeQuery } = require('./utils');
 
 /**
  * Class to  handle scraping of IMDb
@@ -15,11 +16,10 @@ exports.IMDb = class {
   /**
    * Creates an instance of IMDb.
    * @param {string} query - search query that has been sanitized
-   * @param {string} originalQuery - The original search query
    */
-  constructor({ query, originalQuery, showPlot = false, searchByType = null, limitPlot = 40 }) {
-    this.query = query;
-    this.originalQuery = originalQuery;
+  constructor({ query, showPlot = false, searchByType = null, limitPlot = 40 }) {
+    this.query = sanitizeQuery(query);
+    this.originalQuery = query;
     this.url = `http://www.imdb.com/search/title?title=${this.query}`;
     this.results = [];
     this.outputColor = chalk.hex('#f3ce13');
