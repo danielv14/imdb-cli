@@ -4,7 +4,8 @@ const tab = require('table-master');
 const chalk = require('chalk');
 const figlet = require('figlet');
 const axios = require('axios');
-const config = require('./config');
+const config = require('../config');
+const { sanitizeQuery } = require('./utils');
 
 /**
  * Class to  handle scraping of IMDb
@@ -14,12 +15,14 @@ const config = require('./config');
 exports.IMDb = class {
   /**
    * Creates an instance of IMDb.
-   * @param {string} query - search query that has been sanitized
-   * @param {string} originalQuery - The original search query
+   * @param {string} query - search query
+   * @param {boolean} [showPlot=false] determine if plot is to be shown with search result
+   * @param {string} [searchByType=null] Search by type: movies or series
+   * @param {integer} [limitPlot=40] Amount to limit plot to before it truncates
    */
-  constructor({ query, originalQuery, showPlot = false, searchByType = null, limitPlot = 40 }) {
-    this.query = query;
-    this.originalQuery = originalQuery;
+  constructor({ query, showPlot = false, searchByType = null, limitPlot = 40 }) {
+    this.query = sanitizeQuery(query);
+    this.originalQuery = query;
     this.url = `http://www.imdb.com/search/title?title=${this.query}`;
     this.results = [];
     this.outputColor = chalk.hex('#f3ce13');
@@ -55,16 +58,6 @@ exports.IMDb = class {
   }
 
   /**
-   * Log the query, url and results to the console
-   *
-   */
-  log() {
-    console.log(`The query is: ${this.query}`);
-    console.log(`The url is: ${this.url}`);
-    console.log(`results is ${this.results}`);
-  }
-
-  /**
    * Push to results array
    * @param {Array} results Array of result objects to later display
    */
@@ -78,7 +71,7 @@ exports.IMDb = class {
    */
   renderSearchResults() {
     if (Object.keys(this.results).length === 0) {
-      console.log(chalk.red(`Could not find any search results for "${this.originalQuery}". Please try again.`));
+      console.log(chalk.red(`\nCould not find any search results for "${this.originalQuery}". Please try again.`));
     } else {
       console.table(this.results);
     }
@@ -153,6 +146,11 @@ exports.IMDb = class {
     const spinner = ora('Searching IMDb. Please wait...').start();
     try {
       const { data } = await this.getSearchResult(this.query);
+      // render empty searh result of no search result was found
+      if (!data.Search) {
+        this.renderSearchResults();
+        process.exit();
+      }
       if (this.showPlot) {
         // Plot does not exist in response when getting regular search result.
         // Need to fetch the individual search results by imdb id to get their plots
@@ -171,7 +169,7 @@ exports.IMDb = class {
       }
     } catch (e) {
       spinner.stop();
-      console.log(`Program exit with error: ${e}`);
+      console.log(`Program exit with error: ${chalk.red(e)}`);
     }
   }
 };

@@ -1,8 +1,7 @@
 const { IMDb } = require('./IMDb');
 
 const queryObj = {
-  query: 'harry+potter',
-  originalQuery: 'harry potter'
+  query: 'harry potter'
 };
 
 const imdbInstance = new IMDb(queryObj);
@@ -45,8 +44,7 @@ describe('IMDb class', () => {
 
     it('should to able to get only movies', async () => {
       const imdbInstanceHP = new IMDb({
-        query: 'star+wars',
-        originalQuery: 'star wars',
+        query: 'star wars',
         searchByType: 'movie'
       });
       const { data } = await imdbInstanceHP.getSearchResult(imdbInstanceHP.query);
@@ -56,8 +54,7 @@ describe('IMDb class', () => {
 
     it('should to able to get only series', async () => {
       const imdbInstanceSW = new IMDb({
-        query: 'star+wars',
-        originalQuery: 'star wars',
+        query: 'star wars',
         searchByType: 'series'
       });
       const { data } = await imdbInstanceSW.getSearchResult(imdbInstanceSW.query);
