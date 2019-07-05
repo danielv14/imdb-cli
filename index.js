@@ -9,8 +9,12 @@ const pkg = require('./package');
 const inputError = 'Please enter a query to search for...';
 
 program
-  .version(pkg.version)
+  .version(pkg.version, '-v --version')
   .option('-p, --plot', 'Show plot in search result')
+  .option(
+    '-l, --limit-plot [number]',
+    'Limit the amount of characters to be displayed for plot text. If omitted a default amount will be used'
+  )
   .option(
     '-t, --title [title]',
     'Search by a specific title. If omitted the program will prompt you for a title to search for'
@@ -46,6 +50,7 @@ if (program.title) {
     query: query.getSanitizedQuery(),
     originalquery: program.title,
     showPlot: !!program.plot,
+    limitPlot: program.limitPlot,
     searchByType: IMDb.determineType({ movies: program.movies, series: program.series })
   });
   imdbInstance.search();
@@ -57,6 +62,7 @@ if (program.title) {
       query: query.getSanitizedQuery(),
       originalquery: answer.searchString,
       showPlot: !!program.plot,
+      limitPlot: program.limitPlot,
       searchByType: IMDb.determineType({ movies: program.movies, series: program.series })
     });
     imdbInstance.search();
