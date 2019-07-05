@@ -15,7 +15,10 @@ const { sanitizeQuery } = require('./utils');
 exports.IMDb = class {
   /**
    * Creates an instance of IMDb.
-   * @param {string} query - search query that has been sanitized
+   * @param {string} query - search query
+   * @param {boolean} [showPlot=false] determine if plot is to be shown with search result
+   * @param {string} [searchByType=null] Search by type: movies or series
+   * @param {integer} [limitPlot=40] Amount to limit plot to before it truncates
    */
   constructor({ query, showPlot = false, searchByType = null, limitPlot = 40 }) {
     this.query = sanitizeQuery(query);
