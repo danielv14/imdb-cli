@@ -20,6 +20,7 @@ program
   )
   .option('-m, --movies', 'Search by movies only. Cannot be used alongside "series" parameter')
   .option('-s --series', 'Search by series only. Cannot be used alongside "movie" parameter')
+  .option('-o, --order-by [column]', 'Sort the search result by a column')
   .parse(process.argv);
 
 if (program.movies && program.series) {
@@ -48,6 +49,7 @@ if (program.title) {
     query: program.title,
     showPlot: !!program.plot,
     limitPlot: program.limitPlot,
+    sortColumn: program.orderBy,
     searchByType: IMDb.determineType({ movies: program.movies, series: program.series })
   });
   imdbInstance.search();
@@ -58,6 +60,7 @@ if (program.title) {
       query: answer.searchString,
       showPlot: !!program.plot,
       limitPlot: program.limitPlot,
+      sortColumn: program.orderBy,
       searchByType: IMDb.determineType({ movies: program.movies, series: program.series })
     });
     imdbInstance.search();

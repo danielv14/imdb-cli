@@ -4,8 +4,9 @@ const tab = require('table-master');
 const chalk = require('chalk');
 const figlet = require('figlet');
 const axios = require('axios');
+const capitalze = require('lodash/capitalize');
 const config = require('../config');
-const { sanitizeQuery } = require('./utils');
+const { sanitizeQuery, sortByColumn } = require('./utils');
 
 /**
  * Class to  handle scraping of IMDb
@@ -19,8 +20,9 @@ exports.IMDb = class {
    * @param {boolean} [showPlot=false] determine if plot is to be shown with search result
    * @param {string} [searchByType=null] Search by type: movies or series
    * @param {integer} [limitPlot=40] Amount to limit plot to before it truncates
+   * @param {string} [sortColumn=null] Specify a column to sort by. Supports 'title' or 'year'
    */
-  constructor({ query, showPlot = false, searchByType = null, limitPlot = 40 }) {
+  constructor({ query, showPlot = false, searchByType = null, limitPlot = 40, sortColumn = null }) {
     this.query = sanitizeQuery(query);
     this.originalQuery = query;
     this.url = `http://www.imdb.com/search/title?title=${this.query}`;
@@ -29,6 +31,9 @@ exports.IMDb = class {
     this.showPlot = showPlot;
     this.searchByType = searchByType;
     this.limitPlot = parseInt(limitPlot, 10);
+    if (sortColumn && this.availableColumnsToSort().includes(sortColumn.toLowerCase())) {
+      this.sortColumn = capitalze(sortColumn);
+    }
   }
 
   /**
@@ -72,9 +77,30 @@ exports.IMDb = class {
   renderSearchResults() {
     if (Object.keys(this.results).length === 0) {
       console.log(chalk.red(`\nCould not find any search results for "${this.originalQuery}". Please try again.`));
+    } else if (this.sortColumn) {
+      console.table(this.getSortedSearchResult());
     } else {
       console.table(this.results);
     }
+  }
+
+  /**
+   * Get a sorted array of the search result
+   */
+  getSortedSearchResult() {
+    return sortByColumn({
+      items: this.results,
+      column: this.sortColumn,
+      order: this.sortColumn === 'Title' ? 'asc' : 'desc'
+    });
+  }
+
+  /**
+   * Get available values to sort by
+   * @returns {Array}
+   */
+  availableColumnsToSort() {
+    return ['year', 'title'];
   }
 
   /**
