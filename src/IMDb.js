@@ -4,7 +4,7 @@ const tab = require('table-master');
 const chalk = require('chalk');
 const figlet = require('figlet');
 const axios = require('axios');
-const config = require('./config');
+const config = require('../config');
 
 /**
  * Class to  handle scraping of IMDb

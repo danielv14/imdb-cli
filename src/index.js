@@ -3,8 +3,8 @@ const clear = require('clear');
 const inquirer = require('inquirer');
 const program = require('commander');
 const { IMDb } = require('./IMDb');
-const { QueryHelper } = require('./queryHelper');
-const pkg = require('./package');
+const { sanitizeQuery } = require('./utils');
+const pkg = require('../package');
 
 const inputError = 'Please enter a query to search for...';
 
@@ -45,9 +45,8 @@ clear();
 IMDb.displayHeader();
 
 if (program.title) {
-  const query = new QueryHelper(program.title);
   const imdbInstance = new IMDb({
-    query: query.getSanitizedQuery(),
+    query: sanitizeQuery(program.title),
     originalquery: program.title,
     showPlot: !!program.plot,
     limitPlot: program.limitPlot,
@@ -57,9 +56,8 @@ if (program.title) {
 } else {
   // prompt the user for a search string
   inquirer.prompt(question).then(answer => {
-    const query = new QueryHelper(answer.searchString);
     const imdbInstance = new IMDb({
-      query: query.getSanitizedQuery(),
+      query: sanitizeQuery(answer.searchString),
       originalquery: answer.searchString,
       showPlot: !!program.plot,
       limitPlot: program.limitPlot,
