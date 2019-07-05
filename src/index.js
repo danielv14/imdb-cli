@@ -47,7 +47,7 @@ IMDb.displayHeader();
 if (program.title) {
   const imdbInstance = new IMDb({
     query: sanitizeQuery(program.title),
-    originalquery: program.title,
+    originalQuery: program.title,
     showPlot: !!program.plot,
     limitPlot: program.limitPlot,
     searchByType: IMDb.determineType({ movies: program.movies, series: program.series })
@@ -58,7 +58,7 @@ if (program.title) {
   inquirer.prompt(question).then(answer => {
     const imdbInstance = new IMDb({
       query: sanitizeQuery(answer.searchString),
-      originalquery: answer.searchString,
+      originalQuery: answer.searchString,
       showPlot: !!program.plot,
       limitPlot: program.limitPlot,
       searchByType: IMDb.determineType({ movies: program.movies, series: program.series })
