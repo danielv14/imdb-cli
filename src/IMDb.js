@@ -153,6 +153,11 @@ exports.IMDb = class {
     const spinner = ora('Searching IMDb. Please wait...').start();
     try {
       const { data } = await this.getSearchResult(this.query);
+      // render empty searh result of no search result was found
+      if (!data.Search) {
+        this.renderSearchResults();
+        process.exit();
+      }
       if (this.showPlot) {
         // Plot does not exist in response when getting regular search result.
         // Need to fetch the individual search results by imdb id to get their plots
