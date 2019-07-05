@@ -17,7 +17,7 @@ exports.IMDb = class {
    * @param {string} query - search query that has been sanitized
    * @param {string} originalQuery - The original search query
    */
-  constructor({ query, originalQuery, showPlot = false, searchByType = null }) {
+  constructor({ query, originalQuery, showPlot = false, searchByType = null, limitPlot = 40 }) {
     this.query = query;
     this.originalQuery = originalQuery;
     this.url = `http://www.imdb.com/search/title?title=${this.query}`;
@@ -25,6 +25,7 @@ exports.IMDb = class {
     this.outputColor = chalk.hex('#f3ce13');
     this.showPlot = showPlot;
     this.searchByType = searchByType;
+    this.limitPlot = parseInt(limitPlot, 10);
   }
 
   /**
@@ -112,8 +113,8 @@ exports.IMDb = class {
    * @param {String} text string to truncate
    * @param {Integer} [limit=40] Limit truncation to a specific amount of chars
    */
-  getTruncatedText({ text, limit = 40 }) {
-    return `${text.substring(0, limit)}...`;
+  getTruncatedText({ text }) {
+    return `${text.substring(0, this.limitPlot)}...`;
   }
 
   /**
