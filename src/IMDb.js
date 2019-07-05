@@ -171,7 +171,7 @@ exports.IMDb = class {
       }
     } catch (e) {
       spinner.stop();
-      console.log(`Program exit with error: ${e}`);
+      console.log(`Program exit with error: ${chalk.red(e)}`);
     }
   }
 };
