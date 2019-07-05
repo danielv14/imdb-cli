@@ -9,7 +9,7 @@ const pkg = require('./package');
 const inputError = 'Please enter a query to search for...';
 
 program
-  .version(pkg.version)
+  .version(pkg.version, '-v --version')
   .option('-p, --plot', 'Show plot in search result')
   .option(
     '-t, --title [title]',
