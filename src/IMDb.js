@@ -78,7 +78,7 @@ exports.IMDb = class {
    */
   renderSearchResults() {
     if (Object.keys(this.results).length === 0) {
-      console.log(chalk.red(`Could not find any search results for "${this.originalQuery}". Please try again.`));
+      console.log(chalk.red(`\nCould not find any search results for "${this.originalQuery}". Please try again.`));
     } else {
       console.table(this.results);
     }
