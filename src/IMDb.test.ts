@@ -1,8 +1,8 @@
-import IMDb from './IMDb'
-import { SearchResult } from './interfaces'
+import IMDb from './IMDb';
+import { ISearchResult } from './interfaces';
 
 const queryObj = {
-  query: 'harry potter'
+  query: 'harry potter',
 };
 
 const imdbInstance = new IMDb(queryObj);
@@ -46,20 +46,20 @@ describe('IMDb class', () => {
     it('should to able to get only movies', async () => {
       const imdbInstanceHP = new IMDb({
         query: 'star wars',
-        searchByType: 'movie'
+        searchByType: 'movie',
       });
       const { data } = await imdbInstanceHP.getSearchResult(imdbInstanceHP.query);
-      const filteredData = data.Search.filter((item: SearchResult) => item.Type === 'movie');
+      const filteredData = data.Search.filter((item: ISearchResult) => item.Type === 'movie');
       expect(filteredData.length).toBeGreaterThan(0);
     });
 
     it('should to able to get only series', async () => {
       const imdbInstanceSW = new IMDb({
         query: 'star wars',
-        searchByType: 'series'
+        searchByType: 'series',
       });
       const { data } = await imdbInstanceSW.getSearchResult(imdbInstanceSW.query);
-      const filteredData = data.Search.filter((item: SearchResult) => item.Type === 'series');
+      const filteredData = data.Search.filter((item: ISearchResult) => item.Type === 'series');
       expect(filteredData.length).toBeGreaterThan(0);
     });
   });
@@ -75,7 +75,7 @@ describe('IMDb class', () => {
   describe('getTruncatedtext()', () => {
     it('should properly truncate text', () => {
       const text = imdbInstance.getTruncatedText({
-        text: 'Harry, Ron, and Hermione search for Voldemort and other things that will be truncated'
+        text: 'Harry, Ron, and Hermione search for Voldemort and other things that will be truncated',
       });
       expect(text.includes('truncated')).not.toBeTruthy();
       expect(text.includes('Harry, Ron, and Hermione search')).toBeTruthy();
@@ -90,10 +90,10 @@ describe('IMDb class', () => {
         Year: '1991',
         Type: 'movie',
         Plot:
-          'This is a very long plot and some if it will and should be truncated and I think if i type long enough it will be truncated',
-        imdbID: 'tt123456'
+          'This is a very long plot and some if it will and should be truncated and I think',
+        imdbID: 'tt123456',
       });
-      'Title,Year,Type,Plot,IMDb ID'.split(',').map(objKey => expect(objFormatted).toHaveProperty(objKey));
+      'Title,Year,Type,Plot,IMDb ID'.split(',').map((objKey: string) => expect(objFormatted).toHaveProperty(objKey));
     });
   });
 
@@ -103,9 +103,9 @@ describe('IMDb class', () => {
         Title: 'Hello world',
         Year: '1991',
         Type: 'movie',
-        imdbID: 'tt123456'
+        imdbID: 'tt123456',
       });
-      'Title,Year,Type,IMDb ID'.split(',').map(objKey => expect(objFormatted).toHaveProperty(objKey));
+      'Title,Year,Type,IMDb ID'.split(',').map((objKey: string) => expect(objFormatted).toHaveProperty(objKey));
       expect(objFormatted).not.toHaveProperty('Plot');
     });
   });

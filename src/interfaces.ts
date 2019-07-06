@@ -1,38 +1,38 @@
 export interface IMDbProperties {
-  query: String;
-  originalQuery: String;
-  url: String;
-  results: Array<Object>;
-  outputColor: Function;
-  showPlot: Boolean;
-  searchByType: String;
+  query: string;
+  originalQuery: string;
+  url: string;
+  results: IFormattedSearchResult[];
+  outputColor: (text: string) => string;
+  showPlot: boolean;
+  searchByType: string;
   limitPlot: number;
-  sortColumn?: String;
+  sortColumn?: string;
 }
 
-export interface SortObject {
-  items: Array<any>;
-  column: String;
+export interface ISortObject {
+  items: any[];
+  column: string;
   order: any;
 }
 
-export interface SearchResult {
-  Title: String;
-  Year: String;
-  Type: String;
-  Plot?: String;
-  imdbID: String
+export interface ISearchResult {
+  Title: string;
+  Year: string;
+  Type: string;
+  Plot?: string;
+  imdbID: string;
 }
 
-export interface FormattedSearchResult {
-  Title: String;
-  Year: String;
-  Type: String;
-  Plot?: String;
-  'IMDb ID': String
+export interface IFormattedSearchResult {
+  Title: string;
+  Year: string;
+  Type: string;
+  Plot?: string;
+  'IMDb ID': string;
 }
 
-export interface MovieOrSeries {
-  movies?: Boolean;
-  series?: Boolean;
+export interface IMovieOrSeries {
+  movies?: boolean;
+  series?: boolean;
 }

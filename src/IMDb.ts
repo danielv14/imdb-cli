@@ -1,4 +1,4 @@
-const ora = require('ora')
+const ora = require('ora');
 // eslint-disable-next-line no-unused-vars
 const tab = require('table-master');
 const chalk = require('chalk');
@@ -8,7 +8,7 @@ const capitalze = require('lodash/capitalize');
 const config = require('../config');
 const { sanitizeQuery, sortByColumn } = require('./utils');
 
-import { SearchResult, MovieOrSeries, IMDbProperties, SortObject, FormattedSearchResult } from './interfaces'
+import { IFormattedSearchResult, IMDbProperties, IMovieOrSeries, ISearchResult, ISortObject } from './interfaces';
 
 /**
  * Class to  handle scraping of IMDb
@@ -16,15 +16,41 @@ import { SearchResult, MovieOrSeries, IMDbProperties, SortObject, FormattedSearc
  * @class IMDb
  */
 const IMDb = class implements IMDbProperties {
-  query: String;
-  originalQuery: String;
-  url: String;
-  results: Array<SearchResult>;
-  outputColor: Function;
-  showPlot: Boolean;
-  searchByType: any;
-  limitPlot: number;
-  sortColumn: any;
+
+  /**
+   * Static method to display IMDB header for the CLI
+   *
+   * @static
+   */
+  public static displayHeader() {
+    const imdbColor = chalk.hex('#f3ce13');
+    console.log(imdbColor(figlet.textSync('IMDb CLI')));
+  }
+
+  /**
+   * Static method to determine type, i.e movies or series is to be used when creating the IMDb class
+   * @param {Boolean} movies
+   * @param {Boolean} series
+   * @returns {String}
+   */
+  public static determineType({ movies, series }: IMovieOrSeries) {
+    if (movies) {
+      return 'movie';
+    }
+    if (series) {
+      return 'series';
+    }
+    return null;
+  }
+  public query: string;
+  public originalQuery: string;
+  public url: string;
+  public results: IFormattedSearchResult[];
+  public outputColor: (text: string) => string;
+  public showPlot: boolean;
+  public searchByType: any;
+  public limitPlot: number;
+  public sortColumn: any;
   /**
    * Creates an instance of IMDb.
    * @param {string} query - search query
@@ -48,46 +74,20 @@ const IMDb = class implements IMDbProperties {
   }
 
   /**
-   * Static method to display IMDB header for the CLI
-   *
-   * @static
-   */
-  static displayHeader() {
-    const imdbColor = chalk.hex('#f3ce13');
-    console.log(imdbColor(figlet.textSync('IMDb CLI')));
-  }
-
-  /**
-   * Static method to determine type, i.e movies or series is to be used when creating the IMDb class
-   * @param {Boolean} movies
-   * @param {Boolean} series
-   * @returns {String}
-   */
-  static determineType({ movies, series }: MovieOrSeries) {
-    if (movies) {
-      return 'movie';
-    }
-    if (series) {
-      return 'series';
-    }
-    return null;
-  }
-
-  /**
    * Push to results array
    * @param {Array} results Array of result objects to later display
    */
-  createSearchResult(results: Array<any>): void {
-    results.forEach(result => this.results.push(result));
+  public createSearchResult(results: any[]): void {
+    results.forEach((result) => this.results.push(result));
   }
 
   /**
    * Render either a table with search results
    * or a message of no search results were found
    */
-  renderSearchResults(): void {
+  public renderSearchResults(): void {
     if (Object.keys(this.results).length === 0) {
-      console.log(chalk.red(`\nCould not find any search results for "${this.originalQuery}". Please try again.`));
+      console.log(chalk.red(`\nCould not find any search results for '${this.originalQuery}'. Please try again.`));
     } else if (this.sortColumn) {
       console.table(this.getSortedSearchResult());
     } else {
@@ -98,11 +98,11 @@ const IMDb = class implements IMDbProperties {
   /**
    * Get a sorted array of the search result
    */
-  getSortedSearchResult(): SortObject {
+  public getSortedSearchResult(): ISortObject {
     return sortByColumn({
       items: this.results,
       column: this.sortColumn,
-      order: this.sortColumn === 'Title' ? 'asc' : 'desc'
+      order: this.sortColumn === 'Title' ? 'asc' : 'desc',
     });
   }
 
@@ -110,7 +110,7 @@ const IMDb = class implements IMDbProperties {
    * Get available values to sort by
    * @returns {Array}
    */
-  availableColumnsToSort(): Array<String> {
+  public availableColumnsToSort(): string[] {
     return ['year', 'title'];
   }
 
@@ -118,7 +118,7 @@ const IMDb = class implements IMDbProperties {
    * Get the api key to use for omdb api
    * @returns {String}
    */
-  getAPIKey(): String {
+  public getAPIKey(): string {
     return config.apikey;
   }
 
@@ -127,14 +127,14 @@ const IMDb = class implements IMDbProperties {
    * @param {String} query
    * @returns {Promise}
    */
-  getSearchResult(query: String): Promise<any> {
+  public getSearchResult(query: string): Promise<any> {
     if (this.searchByType) {
       return axios.get(`http://www.omdbapi.com?s=${query}&apikey=${this.getAPIKey()}&type=${this.searchByType}`);
     }
     return axios.get(`http://www.omdbapi.com?s=${query}&apikey=${this.getAPIKey()}`);
   }
 
-  getItemByIMDbId(imdbId: String): Promise<any> {
+  public getItemByIMDbId(imdbId: string): Promise<any> {
     return axios.get(`http://www.omdbapi.com?i=${imdbId}&apikey=${this.getAPIKey()}`);
   }
 
@@ -143,9 +143,9 @@ const IMDb = class implements IMDbProperties {
    * @param {String} text string to truncate
    * @param {Integer} [limit=40] Limit truncation to a specific amount of chars
    */
-  getTruncatedText({ text }: { text?: String }): String {
+  public getTruncatedText({ text }: { text?: string }): string {
     if (!text) {
-      return ''
+      return '';
     }
     return `${text.substring(0, this.limitPlot)}...`;
   }
@@ -155,13 +155,13 @@ const IMDb = class implements IMDbProperties {
    * @param {Object} input
    * @returns {Object}
    */
-  getFormattedSearchResultWithPlot(input: SearchResult): FormattedSearchResult {
+  public getFormattedSearchResultWithPlot(input: ISearchResult): IFormattedSearchResult {
     return {
-      Title: input.Title,
-      Year: input.Year,
-      Type: input.Type,
-      Plot: this.getTruncatedText({ text: input.Plot }),
-      'IMDb ID': this.outputColor(input.imdbID)
+      'Title': input.Title,
+      'Year': input.Year,
+      'Type': input.Type,
+      'Plot': this.getTruncatedText({ text: input.Plot }),
+      'IMDb ID': this.outputColor(input.imdbID),
     };
   }
 
@@ -170,19 +170,19 @@ const IMDb = class implements IMDbProperties {
    * @param {Object} input
    * @returns {Object}
    */
-  getFormattedSearchResult(input: SearchResult): FormattedSearchResult {
+  public getFormattedSearchResult(input: ISearchResult): IFormattedSearchResult {
     return {
-      Title: input.Title,
-      Year: input.Year,
-      Type: input.Type,
-      'IMDb ID': this.outputColor(input.imdbID)
+      'Title': input.Title,
+      'Year': input.Year,
+      'Type': input.Type,
+      'IMDb ID': this.outputColor(input.imdbID),
     };
   }
 
   /**
    * Perform search for movies/series
    */
-  async search(): Promise<void> {
+  public async search(): Promise<void> {
     const spinner = ora('Searching IMDb. Please wait...').start();
     try {
       const { data } = await this.getSearchResult(this.query);
