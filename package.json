@@ -6,10 +6,11 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
-    "start": "tsc && node dist/index.js",
-    "dev": "tsc --watch",
-    "lint": "eslint --ext .js --ignore-path .gitignore .",
-    "lint:fix": "eslint --fix --ext .js --ignore-path .gitignore ."
+    "start": "npm run compile && node dist/index.js",
+    "compile": "tsc",
+    "compile:watch": "tsc --watch",
+    "lint": "tslint --project ./",
+    "lint:fix": "tslint --project ./ --fix"
   },
   "bin": {
     "imdb": "./dist/index.js"
