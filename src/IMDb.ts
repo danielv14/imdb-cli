@@ -1,4 +1,4 @@
-const ora = require('ora');
+const ora = require('ora')
 // eslint-disable-next-line no-unused-vars
 const tab = require('table-master');
 const chalk = require('chalk');
@@ -8,12 +8,23 @@ const capitalze = require('lodash/capitalize');
 const config = require('../config');
 const { sanitizeQuery, sortByColumn } = require('./utils');
 
+import { SearchResult, MovieOrSeries, IMDbProperties, SortObject, FormattedSearchResult } from './interfaces'
+
 /**
  * Class to  handle scraping of IMDb
  *
  * @class IMDb
  */
-exports.IMDb = class {
+const IMDb = class implements IMDbProperties {
+  query: String;
+  originalQuery: String;
+  url: String;
+  results: Array<SearchResult>;
+  outputColor: Function;
+  showPlot: Boolean;
+  searchByType: any;
+  limitPlot: number;
+  sortColumn: any;
   /**
    * Creates an instance of IMDb.
    * @param {string} query - search query
@@ -22,7 +33,7 @@ exports.IMDb = class {
    * @param {integer} [limitPlot=40] Amount to limit plot to before it truncates
    * @param {string} [sortColumn=null] Specify a column to sort by. Supports 'title' or 'year'
    */
-  constructor({ query, showPlot = false, searchByType = null, limitPlot = 40, sortColumn = null }) {
+  constructor({ query = '', showPlot = false, searchByType = '', limitPlot = 40, sortColumn = '' }) {
     this.query = sanitizeQuery(query);
     this.originalQuery = query;
     this.url = `http://www.imdb.com/search/title?title=${this.query}`;
@@ -30,7 +41,7 @@ exports.IMDb = class {
     this.outputColor = chalk.hex('#f3ce13');
     this.showPlot = showPlot;
     this.searchByType = searchByType;
-    this.limitPlot = parseInt(limitPlot, 10);
+    this.limitPlot = limitPlot;
     if (sortColumn && this.availableColumnsToSort().includes(sortColumn.toLowerCase())) {
       this.sortColumn = capitalze(sortColumn);
     }
@@ -52,7 +63,7 @@ exports.IMDb = class {
    * @param {Boolean} series
    * @returns {String}
    */
-  static determineType({ movies, series }) {
+  static determineType({ movies, series }: MovieOrSeries) {
     if (movies) {
       return 'movie';
     }
@@ -66,7 +77,7 @@ exports.IMDb = class {
    * Push to results array
    * @param {Array} results Array of result objects to later display
    */
-  createSearchResult(results) {
+  createSearchResult(results: Array<any>): void {
     results.forEach(result => this.results.push(result));
   }
 
@@ -74,7 +85,7 @@ exports.IMDb = class {
    * Render either a table with search results
    * or a message of no search results were found
    */
-  renderSearchResults() {
+  renderSearchResults(): void {
     if (Object.keys(this.results).length === 0) {
       console.log(chalk.red(`\nCould not find any search results for "${this.originalQuery}". Please try again.`));
     } else if (this.sortColumn) {
@@ -87,7 +98,7 @@ exports.IMDb = class {
   /**
    * Get a sorted array of the search result
    */
-  getSortedSearchResult() {
+  getSortedSearchResult(): SortObject {
     return sortByColumn({
       items: this.results,
       column: this.sortColumn,
@@ -99,7 +110,7 @@ exports.IMDb = class {
    * Get available values to sort by
    * @returns {Array}
    */
-  availableColumnsToSort() {
+  availableColumnsToSort(): Array<String> {
     return ['year', 'title'];
   }
 
@@ -107,7 +118,7 @@ exports.IMDb = class {
    * Get the api key to use for omdb api
    * @returns {String}
    */
-  getAPIKey() {
+  getAPIKey(): String {
     return config.apikey;
   }
 
@@ -116,14 +127,14 @@ exports.IMDb = class {
    * @param {String} query
    * @returns {Promise}
    */
-  getSearchResult(query) {
+  getSearchResult(query: String): Promise<any> {
     if (this.searchByType) {
       return axios.get(`http://www.omdbapi.com?s=${query}&apikey=${this.getAPIKey()}&type=${this.searchByType}`);
     }
     return axios.get(`http://www.omdbapi.com?s=${query}&apikey=${this.getAPIKey()}`);
   }
 
-  getItemByIMDbId(imdbId) {
+  getItemByIMDbId(imdbId: String): Promise<any> {
     return axios.get(`http://www.omdbapi.com?i=${imdbId}&apikey=${this.getAPIKey()}`);
   }
 
@@ -132,7 +143,10 @@ exports.IMDb = class {
    * @param {String} text string to truncate
    * @param {Integer} [limit=40] Limit truncation to a specific amount of chars
    */
-  getTruncatedText({ text }) {
+  getTruncatedText({ text }: { text?: String }): String {
+    if (!text) {
+      return ''
+    }
     return `${text.substring(0, this.limitPlot)}...`;
   }
 
@@ -141,7 +155,7 @@ exports.IMDb = class {
    * @param {Object} input
    * @returns {Object}
    */
-  getFormattedSearchResultWithPlot(input) {
+  getFormattedSearchResultWithPlot(input: SearchResult): FormattedSearchResult {
     return {
       Title: input.Title,
       Year: input.Year,
@@ -156,7 +170,7 @@ exports.IMDb = class {
    * @param {Object} input
    * @returns {Object}
    */
-  getFormattedSearchResult(input) {
+  getFormattedSearchResult(input: SearchResult): FormattedSearchResult {
     return {
       Title: input.Title,
       Year: input.Year,
@@ -168,7 +182,7 @@ exports.IMDb = class {
   /**
    * Perform search for movies/series
    */
-  async search() {
+  async search(): Promise<void> {
     const spinner = ora('Searching IMDb. Please wait...').start();
     try {
       const { data } = await this.getSearchResult(this.query);
@@ -180,9 +194,9 @@ exports.IMDb = class {
       if (this.showPlot) {
         // Plot does not exist in response when getting regular search result.
         // Need to fetch the individual search results by imdb id to get their plots
-        const fullPromises = data.Search.map(result => this.getItemByIMDbId(result.imdbID));
+        const fullPromises = data.Search.map((result: any) => this.getItemByIMDbId(result.imdbID));
         const promises = await Promise.all(fullPromises);
-        const results = promises.map(result => result.data);
+        const results = promises.map((result: any) => result.data);
         const searchResult = results.map(this.getFormattedSearchResultWithPlot.bind(this));
         this.createSearchResult(searchResult);
         spinner.stop();
@@ -199,3 +213,5 @@ exports.IMDb = class {
     }
   }
 };
+
+export default IMDb;

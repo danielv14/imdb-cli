@@ -1,4 +1,5 @@
-const { IMDb } = require('./IMDb');
+import IMDb from './IMDb'
+import { SearchResult } from './interfaces'
 
 const queryObj = {
   query: 'harry potter'
@@ -17,7 +18,7 @@ describe('IMDb class', () => {
 
   it('should default to not search by any type or show plot', () => {
     expect(imdbInstance.showPlot).toBe(false);
-    expect(imdbInstance.searchByType).toBe(null);
+    expect(imdbInstance.searchByType).toBe('');
   });
 
   describe('determineType()', () => {
@@ -48,7 +49,7 @@ describe('IMDb class', () => {
         searchByType: 'movie'
       });
       const { data } = await imdbInstanceHP.getSearchResult(imdbInstanceHP.query);
-      const filteredData = data.Search.filter(item => item.Type === 'movie');
+      const filteredData = data.Search.filter((item: SearchResult) => item.Type === 'movie');
       expect(filteredData.length).toBeGreaterThan(0);
     });
 
@@ -58,7 +59,7 @@ describe('IMDb class', () => {
         searchByType: 'series'
       });
       const { data } = await imdbInstanceSW.getSearchResult(imdbInstanceSW.query);
-      const filteredData = data.Search.filter(item => item.Type === 'series');
+      const filteredData = data.Search.filter((item: SearchResult) => item.Type === 'series');
       expect(filteredData.length).toBeGreaterThan(0);
     });
   });
@@ -111,11 +112,11 @@ describe('IMDb class', () => {
 
   describe('createSearchResult()', () => {
     it('should add search results from a given array', () => {
-      const results = [{ name: 'a' }, { name: 'b' }];
+      const results = [{ Title: 'a' }, { Title: 'b' }];
       expect(imdbInstance.results.length).toBe(0);
       imdbInstance.createSearchResult(results);
       expect(imdbInstance.results.length).toBe(results.length);
-      expect(imdbInstance.results[0].name).toMatch(results[0].name);
+      expect(imdbInstance.results[0].Title).toMatch(results[0].Title);
     });
   });
 });

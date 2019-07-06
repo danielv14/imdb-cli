@@ -2,7 +2,7 @@
 const clear = require('clear');
 const inquirer = require('inquirer');
 const program = require('commander');
-const { IMDb } = require('./IMDb');
+const IMDb = require('./IMDb').default;
 const pkg = require('../package');
 
 const inputError = 'Please enter a query to search for...';
@@ -34,12 +34,13 @@ const question = [
     type: 'input',
     name: 'searchString',
     message: 'What do you want to search for?\n',
-    validate: value => (value.length ? true : inputError)
+    validate: (value: String) => (value.length ? true : inputError)
   }
 ];
 
 // clear the terminal window
 clear();
+
 
 // display colorful IMDb header
 IMDb.displayHeader();
@@ -55,7 +56,7 @@ if (program.title) {
   imdbInstance.search();
 } else {
   // prompt the user for a search string
-  inquirer.prompt(question).then(answer => {
+  inquirer.prompt(question).then((answer: any) => {
     const imdbInstance = new IMDb({
       query: answer.searchString,
       showPlot: !!program.plot,

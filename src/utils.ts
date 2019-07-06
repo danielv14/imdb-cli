@@ -1,11 +1,13 @@
-const orderBy = require('lodash/orderBy');
+import orderBy from 'lodash/orderBy';
+
+import { SortObject } from './interfaces'
 
 /**
  * Encode a string as a URI component
  * @param {String} query to encode
  * @returns {String}
  */
-const sanitizeQuery = query => encodeURIComponent(query);
+export const sanitizeQuery = (query: string) => encodeURIComponent(query);
 
 /**
  * Get a sorted array of objects sorted by object key value and by asc or desc order
@@ -13,9 +15,6 @@ const sanitizeQuery = query => encodeURIComponent(query);
  * @param {String} column
  * @param {String} order asc or desc
  */
-const sortByColumn = ({ items, column, order }) => {
-  return orderBy(items, [column], [order]);
-};
+export const sortByColumn = ({ items, column, order }: SortObject) => orderBy(items, [column], [order]);
 
-exports.sanitizeQuery = sanitizeQuery;
-exports.sortByColumn = sortByColumn;
+
