@@ -6,9 +6,9 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
-    "start": "npm run compile && node dist/index.js",
-    "compile": "tsc",
-    "compile:watch": "tsc --watch",
+    "start": "npm run build && node dist/index.js",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
     "lint": "tslint --project ./",
     "lint:fix": "tslint --project ./ --fix"
   },
