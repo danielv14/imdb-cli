@@ -15,16 +15,40 @@ Once you have your api key you need to create a `config.json` file in the projec
 ```
 
 ## Usage
-Clone the repo, install it globally with `npm install -g` and then type the following into a terminal
+
+Once you have cloned the repo start by installing all the dependencies with `npm install`.
+
+Since the source code in `src/` folder uses TypeScript the CLI has to by built before usage. Run `npm run build` to build the CLI to target `dist/` folder.
+
+Once the CLI has been built to `dist/` folder install the CLI globally with `npm install -g`. CLI is now globally available. Type the following into a terminal
 ```
 $ imdb
 ```
-This will display the CLI-prompt where the user is asked to enter a search query. If search results are found the CLI will display it in table where titles, years and IMDb-ID's are displayed. 
+This will display the CLI-prompt where the user is asked to enter a search query. Type `imdb --help` to get more info about how the CLI can be used.
 
 ## Current Features
 The CLI currently supports the following features:
 * Searching movies and series to get their imdb id's.
 * Use parameters when starting the application to display plot and search for either movies or series only
+
+## Development
+
+Since this project uses typescript the cli will have to be built, even when developing new features of fixing new bugs. 
+
+* `npm run build` will build the current state of the `src/` to `dist/`
+* `npm run build:watch` will watch for changes in the `src/` folder and build on demand.
+
+CLI is tested with Jest and the following npm commands is available
+
+* `npm run test` will run the test suite
+* `npm run test:watch` will run the test suite and watch for changes and re-run on demand.
+
+### Git hooks
+
+Husky is used for setting up git hooks for the project. Currently two different git hooks are used
+
+* `"pre-commit"` When commiting checks for typescript errors and linting errors are performed
+* `"pre-push"` When pushing to remote the test suite is run to catch any errors or regression in code.
 
 ## Road Map
 Below is a list with currently planned features for the CLI

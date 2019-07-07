@@ -1,4 +1,4 @@
-const { sanitizeQuery, sortByColumn } = require('./utils');
+import { sanitizeQuery, sortByColumn } from './utils';
 
 describe('Utils functions', () => {
   describe('sanitizeQuery()', () => {
