@@ -1,7 +1,8 @@
-const { IMDb } = require('./IMDb');
+import IMDb from './IMDb';
+import { ISearchResult } from './interfaces';
 
 const queryObj = {
-  query: 'harry potter'
+  query: 'harry potter',
 };
 
 const imdbInstance = new IMDb(queryObj);
@@ -17,7 +18,7 @@ describe('IMDb class', () => {
 
   it('should default to not search by any type or show plot', () => {
     expect(imdbInstance.showPlot).toBe(false);
-    expect(imdbInstance.searchByType).toBe(null);
+    expect(imdbInstance.searchByType).toBe('');
   });
 
   describe('determineType()', () => {
@@ -45,20 +46,20 @@ describe('IMDb class', () => {
     it('should to able to get only movies', async () => {
       const imdbInstanceHP = new IMDb({
         query: 'star wars',
-        searchByType: 'movie'
+        searchByType: 'movie',
       });
       const { data } = await imdbInstanceHP.getSearchResult(imdbInstanceHP.query);
-      const filteredData = data.Search.filter(item => item.Type === 'movie');
+      const filteredData = data.Search.filter((item: ISearchResult) => item.Type === 'movie');
       expect(filteredData.length).toBeGreaterThan(0);
     });
 
     it('should to able to get only series', async () => {
       const imdbInstanceSW = new IMDb({
         query: 'star wars',
-        searchByType: 'series'
+        searchByType: 'series',
       });
       const { data } = await imdbInstanceSW.getSearchResult(imdbInstanceSW.query);
-      const filteredData = data.Search.filter(item => item.Type === 'series');
+      const filteredData = data.Search.filter((item: ISearchResult) => item.Type === 'series');
       expect(filteredData.length).toBeGreaterThan(0);
     });
   });
@@ -74,7 +75,7 @@ describe('IMDb class', () => {
   describe('getTruncatedtext()', () => {
     it('should properly truncate text', () => {
       const text = imdbInstance.getTruncatedText({
-        text: 'Harry, Ron, and Hermione search for Voldemort and other things that will be truncated'
+        text: 'Harry, Ron, and Hermione search for Voldemort and other things that will be truncated',
       });
       expect(text.includes('truncated')).not.toBeTruthy();
       expect(text.includes('Harry, Ron, and Hermione search')).toBeTruthy();
@@ -89,10 +90,10 @@ describe('IMDb class', () => {
         Year: '1991',
         Type: 'movie',
         Plot:
-          'This is a very long plot and some if it will and should be truncated and I think if i type long enough it will be truncated',
-        imdbID: 'tt123456'
+          'This is a very long plot and some if it will and should be truncated and I think',
+        imdbID: 'tt123456',
       });
-      'Title,Year,Type,Plot,IMDb ID'.split(',').map(objKey => expect(objFormatted).toHaveProperty(objKey));
+      'Title,Year,Type,Plot,IMDb ID'.split(',').map((objKey: string) => expect(objFormatted).toHaveProperty(objKey));
     });
   });
 
@@ -102,20 +103,20 @@ describe('IMDb class', () => {
         Title: 'Hello world',
         Year: '1991',
         Type: 'movie',
-        imdbID: 'tt123456'
+        imdbID: 'tt123456',
       });
-      'Title,Year,Type,IMDb ID'.split(',').map(objKey => expect(objFormatted).toHaveProperty(objKey));
+      'Title,Year,Type,IMDb ID'.split(',').map((objKey: string) => expect(objFormatted).toHaveProperty(objKey));
       expect(objFormatted).not.toHaveProperty('Plot');
     });
   });
 
   describe('createSearchResult()', () => {
     it('should add search results from a given array', () => {
-      const results = [{ name: 'a' }, { name: 'b' }];
+      const results = [{ Title: 'a' }, { Title: 'b' }];
       expect(imdbInstance.results.length).toBe(0);
       imdbInstance.createSearchResult(results);
       expect(imdbInstance.results.length).toBe(results.length);
-      expect(imdbInstance.results[0].name).toMatch(results[0].name);
+      expect(imdbInstance.results[0].Title).toMatch(results[0].Title);
     });
   });
 });
