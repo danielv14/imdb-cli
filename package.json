@@ -1,6 +1,6 @@
 {
   "name": "imdb-scraper",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Search and scrape IMDb for IMDb ID's",
   "main": "src/index.js",
   "scripts": {
