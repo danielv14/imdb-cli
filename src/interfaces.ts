@@ -1,7 +1,7 @@
 export interface IMDbProperties {
   query: string;
   originalQuery: string;
-  url: string;
+  baseUrl: string;
   results: IFormattedSearchResult[];
   outputColor: (text: string) => string;
   showPlot: boolean;
