@@ -15,7 +15,7 @@ import { IFormattedSearchResult, IMDbProperties, IMovieOrSeries, ISearchResult, 
  *
  * @class IMDb
  */
-const IMDb = class implements IMDbProperties {
+class IMDb implements IMDbProperties {
 
   /**
    * Static method to display IMDB header for the CLI
@@ -44,13 +44,13 @@ const IMDb = class implements IMDbProperties {
   }
   public query: string;
   public originalQuery: string;
-  public url: string;
   public results: IFormattedSearchResult[];
   public outputColor: (text: string) => string;
   public showPlot: boolean;
   public searchByType: any;
   public limitPlot: number;
   public sortColumn: any;
+  public baseUrl: string;
   /**
    * Creates an instance of IMDb.
    * @param {string} query - search query
@@ -62,7 +62,6 @@ const IMDb = class implements IMDbProperties {
   constructor({ query = '', showPlot = false, searchByType = '', limitPlot = 40, sortColumn = '' }) {
     this.query = sanitizeQuery(query);
     this.originalQuery = query;
-    this.url = `http://www.imdb.com/search/title?title=${this.query}`;
     this.results = [];
     this.outputColor = chalk.hex('#f3ce13');
     this.showPlot = showPlot;
@@ -71,6 +70,7 @@ const IMDb = class implements IMDbProperties {
     if (sortColumn && this.availableColumnsToSort().includes(sortColumn.toLowerCase())) {
       this.sortColumn = capitalze(sortColumn);
     }
+    this.baseUrl = `http://www.omdbapi.com?apikey=${this.getAPIKey()}`;
   }
 
   /**
@@ -129,13 +129,13 @@ const IMDb = class implements IMDbProperties {
    */
   public getSearchResult(query: string): Promise<any> {
     if (this.searchByType) {
-      return axios.get(`http://www.omdbapi.com?s=${query}&apikey=${this.getAPIKey()}&type=${this.searchByType}`);
+      return axios.get(`${this.baseUrl}&s=${query}&type=${this.searchByType}`);
     }
-    return axios.get(`http://www.omdbapi.com?s=${query}&apikey=${this.getAPIKey()}`);
+    return axios.get(`${this.baseUrl}&s=${query}`);
   }
 
   public getItemByIMDbId(imdbId: string): Promise<any> {
-    return axios.get(`http://www.omdbapi.com?i=${imdbId}&apikey=${this.getAPIKey()}`);
+    return axios.get(`${this.baseUrl}&i=${imdbId}`);
   }
 
   /**
@@ -151,32 +151,22 @@ const IMDb = class implements IMDbProperties {
   }
 
   /**
-   * Get a formatted search result with plot to display from response object
+   * Get a formatted search result to display from ISearchResult data
    * @param {Object} input
-   * @returns {Object}
+   * @param {Boolean} includePlot Determine if plot should be included in the formatted result
+   * @returns {IFormattedSearchResult}
    */
-  public getFormattedSearchResultWithPlot(input: ISearchResult): IFormattedSearchResult {
-    return {
-      'Title': input.Title,
-      'Year': input.Year,
-      'Type': input.Type,
-      'Plot': this.getTruncatedText({ text: input.Plot }),
-      'IMDb ID': this.outputColor(input.imdbID),
-    };
-  }
-
-  /**
-   * Get a formatted search result to display from response object
-   * @param {Object} input
-   * @returns {Object}
-   */
-  public getFormattedSearchResult(input: ISearchResult): IFormattedSearchResult {
-    return {
+  public getFormattedSearchResult(input: ISearchResult, includePlot: boolean = false): IFormattedSearchResult {
+    const result: IFormattedSearchResult = {
       'Title': input.Title,
       'Year': input.Year,
       'Type': input.Type,
       'IMDb ID': this.outputColor(input.imdbID),
     };
+    if (includePlot && input.Plot) {
+      result.Plot = input.Plot;
+    }
+    return result;
   }
 
   /**
@@ -197,12 +187,14 @@ const IMDb = class implements IMDbProperties {
         const fullPromises = data.Search.map((result: any) => this.getItemByIMDbId(result.imdbID));
         const promises = await Promise.all(fullPromises);
         const results = promises.map((result: any) => result.data);
-        const searchResult = results.map(this.getFormattedSearchResultWithPlot.bind(this));
+        const searchResult = results.map(
+          (result: ISearchResult) => this.getFormattedSearchResult(result, this.showPlot),
+        );
         this.createSearchResult(searchResult);
         spinner.stop();
         this.renderSearchResults();
       } else {
-        const searchResult = data.Search.map(this.getFormattedSearchResult.bind(this));
+        const searchResult = data.Search.map((result: ISearchResult) => this.getFormattedSearchResult(result));
         this.createSearchResult(searchResult);
         spinner.stop();
         this.renderSearchResults();
@@ -212,6 +204,6 @@ const IMDb = class implements IMDbProperties {
       console.log(`Program exit with error: ${chalk.red(e)}`);
     }
   }
-};
+}
 
 export default IMDb;
