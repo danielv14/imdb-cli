@@ -151,32 +151,22 @@ class IMDb implements IMDbProperties {
   }
 
   /**
-   * Get a formatted search result with plot to display from response object
+   * Get a formatted search result to display from ISearchResult data
    * @param {Object} input
-   * @returns {Object}
+   * @param {Boolean} includePlot Determine if plot should be included in the formatted result
+   * @returns {IFormattedSearchResult}
    */
-  public getFormattedSearchResultWithPlot(input: ISearchResult): IFormattedSearchResult {
-    return {
-      'Title': input.Title,
-      'Year': input.Year,
-      'Type': input.Type,
-      'Plot': this.getTruncatedText({ text: input.Plot }),
-      'IMDb ID': this.outputColor(input.imdbID),
-    };
-  }
-
-  /**
-   * Get a formatted search result to display from response object
-   * @param {Object} input
-   * @returns {Object}
-   */
-  public getFormattedSearchResult(input: ISearchResult): IFormattedSearchResult {
-    return {
+  public getFormattedSearchResult(input: ISearchResult, includePlot: boolean = false): IFormattedSearchResult {
+    const result: IFormattedSearchResult = {
       'Title': input.Title,
       'Year': input.Year,
       'Type': input.Type,
       'IMDb ID': this.outputColor(input.imdbID),
     };
+    if (includePlot && input.Plot) {
+      result.Plot = input.Plot;
+    }
+    return result;
   }
 
   /**
@@ -197,12 +187,14 @@ class IMDb implements IMDbProperties {
         const fullPromises = data.Search.map((result: any) => this.getItemByIMDbId(result.imdbID));
         const promises = await Promise.all(fullPromises);
         const results = promises.map((result: any) => result.data);
-        const searchResult = results.map(this.getFormattedSearchResultWithPlot.bind(this));
+        const searchResult = results.map(
+          (result: ISearchResult) => this.getFormattedSearchResult(result, this.showPlot),
+        );
         this.createSearchResult(searchResult);
         spinner.stop();
         this.renderSearchResults();
       } else {
-        const searchResult = data.Search.map(this.getFormattedSearchResult.bind(this));
+        const searchResult = data.Search.map((result: ISearchResult) => this.getFormattedSearchResult(result));
         this.createSearchResult(searchResult);
         spinner.stop();
         this.renderSearchResults();

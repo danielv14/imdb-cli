@@ -82,21 +82,6 @@ describe('IMDb class', () => {
       expect(text.includes('...')).toBeTruthy();
     });
   });
-
-  describe('getFormattedSearchResultWithPlot()', () => {
-    it('should return expected object', () => {
-      const objFormatted = imdbInstance.getFormattedSearchResultWithPlot({
-        Title: 'Hello world',
-        Year: '1991',
-        Type: 'movie',
-        Plot:
-          'This is a very long plot and some if it will and should be truncated and I think',
-        imdbID: 'tt123456',
-      });
-      'Title,Year,Type,Plot,IMDb ID'.split(',').map((objKey: string) => expect(objFormatted).toHaveProperty(objKey));
-    });
-  });
-
   describe('getFormattedSearchResult()', () => {
     it('should return expected object', () => {
       const objFormatted = imdbInstance.getFormattedSearchResult({
@@ -107,6 +92,17 @@ describe('IMDb class', () => {
       });
       'Title,Year,Type,IMDb ID'.split(',').map((objKey: string) => expect(objFormatted).toHaveProperty(objKey));
       expect(objFormatted).not.toHaveProperty('Plot');
+    });
+    it('should return expected object with plot', () => {
+      const objFormatted = imdbInstance.getFormattedSearchResult({
+        Title: 'Hello world',
+        Year: '1991',
+        Type: 'movie',
+        Plot:
+          'This is a very long plot and some if it will and should be truncated and I think',
+        imdbID: 'tt123456',
+      }, true);
+      'Title,Year,Type,Plot,IMDb ID'.split(',').map((objKey: string) => expect(objFormatted).toHaveProperty(objKey));
     });
   });
 
