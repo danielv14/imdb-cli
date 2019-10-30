@@ -4,10 +4,18 @@ const tab = require('table-master');
 const chalk = require('chalk');
 const figlet = require('figlet');
 const axios = require('axios');
-const capitalze = require('lodash/capitalize');
 const { sanitizeQuery, sortByColumn } = require('./utils');
 
-import { IFormattedSearchResult, IMDbProperties, IMovieOrSeries, ISearchResult, ISortObject } from './interfaces';
+import { IMDbProperties } from './types/imdb';
+import {
+  FormattedSearchResult,
+  SearchResult,
+  SearchResultSortColumn,
+  SearchResultSortOrder,
+  SearchResultType,
+  SortObject,
+  SortOrder,
+} from './types/searchResult';
 
 /**
  * Class to  handle scraping of IMDb
@@ -32,23 +40,23 @@ class IMDb implements IMDbProperties {
    * @param {Boolean} series
    * @returns {String}
    */
-  public static determineType({ movies, series }: IMovieOrSeries) {
+  public static determineType({ movies, series }: { [key: string]: boolean }): SearchResultType {
     if (movies) {
-      return 'movie';
+      return SearchResultType.Movies;
     }
     if (series) {
-      return 'series';
+      return SearchResultType.Series;
     }
-    return null;
+    return SearchResultType.All;
   }
   public query: string;
   public originalQuery: string;
-  public results: IFormattedSearchResult[];
+  public results: FormattedSearchResult[];
   public outputColor: (text: string) => string;
   public showPlot: boolean;
-  public searchByType: any;
+  public searchByType: SearchResultType;
   public limitPlot: number;
-  public sortColumn: any;
+  public sortColumn: SearchResultSortColumn;
   public baseUrl: string;
   /**
    * Creates an instance of IMDb.
@@ -56,9 +64,15 @@ class IMDb implements IMDbProperties {
    * @param {boolean} [showPlot=false] determine if plot is to be shown with search result
    * @param {string} [searchByType=null] Search by type: movies or series
    * @param {integer} [limitPlot=40] Amount to limit plot to before it truncates
-   * @param {string} [sortColumn=null] Specify a column to sort by. Supports 'title' or 'year'
+   * @param {string} [sortColumn=SearchResultSortColumn.None] Specify a column to sort by. Supports 'title' or 'year'
    */
-  constructor({ query = '', showPlot = false, searchByType = '', limitPlot = 40, sortColumn = '' }) {
+  constructor({
+    query = '',
+    showPlot = false,
+    searchByType = SearchResultType.All,
+    limitPlot = 40,
+    sortColumn = SearchResultSortColumn.None,
+  }) {
     this.query = sanitizeQuery(query);
     this.originalQuery = query;
     this.results = [];
@@ -66,9 +80,8 @@ class IMDb implements IMDbProperties {
     this.showPlot = showPlot;
     this.searchByType = searchByType;
     this.limitPlot = limitPlot;
-    if (sortColumn && this.availableColumnsToSort().includes(sortColumn.toLowerCase())) {
-      this.sortColumn = capitalze(sortColumn);
-    }
+    this.sortColumn = sortColumn;
+
     this.baseUrl = `http://www.omdbapi.com?apikey=${this.getAPIKey()}`;
   }
 
@@ -87,7 +100,7 @@ class IMDb implements IMDbProperties {
   public renderSearchResults(): void {
     if (Object.keys(this.results).length === 0) {
       console.log(chalk.red(`\nCould not find any search results for '${this.originalQuery}'. Please try again.`));
-    } else if (this.sortColumn) {
+    } else if (this.availableColumnsToSort().includes(this.sortColumn)) {
       console.table(this.getSortedSearchResult());
     } else {
       console.table(this.results);
@@ -97,11 +110,14 @@ class IMDb implements IMDbProperties {
   /**
    * Get a sorted array of the search result
    */
-  public getSortedSearchResult(): ISortObject {
+  public getSortedSearchResult(): SortObject {
+    const orderToSortBy = this.sortColumn === SearchResultSortColumn.Year ?
+    SearchResultSortOrder.Descending
+    : SearchResultSortOrder.Ascending;
     return sortByColumn({
       items: this.results,
-      column: this.sortColumn,
-      order: this.sortColumn === 'Title' ? 'asc' : 'desc',
+      column: SortOrder[this.sortColumn],
+      order: orderToSortBy,
     });
   }
 
@@ -110,7 +126,7 @@ class IMDb implements IMDbProperties {
    * @returns {Array}
    */
   public availableColumnsToSort(): string[] {
-    return ['year', 'title'];
+    return [SearchResultSortColumn.Year, SearchResultSortColumn.Title];
   }
 
   /**
@@ -127,10 +143,10 @@ class IMDb implements IMDbProperties {
    * @returns {Promise}
    */
   public getSearchResult(query: string): Promise<any> {
-    if (this.searchByType) {
-      return axios.get(`${this.baseUrl}&s=${query}&type=${this.searchByType}`);
+    if (this.searchByType === SearchResultType.All) {
+      return axios.get(`${this.baseUrl}&s=${query}`);
     }
-    return axios.get(`${this.baseUrl}&s=${query}`);
+    return axios.get(`${this.baseUrl}&s=${query}&type=${this.searchByType}`);
   }
 
   public getItemByIMDbId(imdbId: string): Promise<any> {
@@ -153,10 +169,10 @@ class IMDb implements IMDbProperties {
    * Get a formatted search result to display from ISearchResult data
    * @param {Object} input
    * @param {Boolean} includePlot Determine if plot should be included in the formatted result
-   * @returns {IFormattedSearchResult}
+   * @returns {FormattedSearchResult}
    */
-  public getFormattedSearchResult(input: ISearchResult, includePlot: boolean = false): IFormattedSearchResult {
-    const result: IFormattedSearchResult = {
+  public getFormattedSearchResult(input: SearchResult, includePlot: boolean = false): FormattedSearchResult {
+    const result: FormattedSearchResult = {
       'Title': input.Title,
       'Year': input.Year,
       'Type': input.Type,
@@ -187,13 +203,13 @@ class IMDb implements IMDbProperties {
         const promises = await Promise.all(fullPromises);
         const results = promises.map((result: any) => result.data);
         const searchResult = results.map(
-          (result: ISearchResult) => this.getFormattedSearchResult(result, this.showPlot),
+          (result: SearchResult) => this.getFormattedSearchResult(result, this.showPlot),
         );
         this.createSearchResult(searchResult);
         spinner.stop();
         this.renderSearchResults();
       } else {
-        const searchResult = data.Search.map((result: ISearchResult) => this.getFormattedSearchResult(result));
+        const searchResult = data.Search.map((result: SearchResult) => this.getFormattedSearchResult(result));
         this.createSearchResult(searchResult);
         spinner.stop();
         this.renderSearchResults();

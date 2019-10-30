@@ -1,3 +1,4 @@
+import { SearchResultSortColumn, SearchResultSortOrder, SearchResultType, SortOrder } from './types/searchResult';
 import { sanitizeQuery, sortByColumn } from './utils';
 
 describe('Utils functions', () => {
@@ -19,11 +20,23 @@ describe('Utils functions', () => {
       expect(sortByColumn).toBeDefined();
     });
     it('should sort array of columns', () => {
-      const items = [{ title: 'b', year: 3 }, { title: 'a', year: 2 }, { title: 'c', year: 1 }];
-      const sortedByTitle = sortByColumn({ items, column: 'title', order: 'asc' });
-      const sortedByYear = sortByColumn({ items, column: 'year', order: 'desc' });
-      expect(sortedByTitle[0].title).toMatch('a');
-      expect(sortedByYear[0].year === 3).toBeTruthy();
+      const items = [
+        { 'Title': 'a', 'Year': '2', 'Type': SearchResultType.Movies, 'IMDb ID': '2' },
+        { 'Title': 'b', 'Year': '3', 'Type': SearchResultType.Movies, 'IMDb ID': '1' },
+        { 'Title': 'c', 'Year': '1', 'Type': SearchResultType.Movies, 'IMDb ID': '3' },
+      ];
+      const sortedByTitle = sortByColumn({
+        items,
+        column: SortOrder[SearchResultSortColumn.Title],
+        order: SearchResultSortOrder.Ascending,
+      });
+      const sortedByYear = sortByColumn({
+        items,
+        column: SortOrder[SearchResultSortColumn.Year],
+        order: SearchResultSortOrder.Descending,
+      });
+      expect(sortedByTitle[0].Title).toMatch('a');
+      expect(sortedByYear[0].Year === '3').toBeTruthy();
     });
   });
 });

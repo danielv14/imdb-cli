@@ -1,5 +1,5 @@
 import IMDb from './IMDb';
-import { ISearchResult } from './interfaces';
+import { SearchResult, SearchResultType } from './types/searchResult';
 
 const queryObj = {
   query: 'harry potter',
@@ -18,16 +18,16 @@ describe('IMDb class', () => {
 
   it('should default to not search by any type or show plot', () => {
     expect(imdbInstance.showPlot).toBe(false);
-    expect(imdbInstance.searchByType).toBe('');
+    expect(imdbInstance.searchByType).toBe(SearchResultType.All);
   });
 
   describe('determineType()', () => {
     it('should return the right type', () => {
-      expect(IMDb.determineType({ movies: true })).toMatch('movie');
-      expect(IMDb.determineType({ series: true })).toMatch('series');
-      expect(IMDb.determineType({ series: false })).toBe(null);
-      expect(IMDb.determineType({ movies: false })).toBe(null);
-      expect(IMDb.determineType({})).toBe(null);
+      expect(IMDb.determineType({ movies: true })).toMatch(SearchResultType.Movies);
+      expect(IMDb.determineType({ series: true })).toMatch(SearchResultType.Series);
+      expect(IMDb.determineType({ series: false })).toBe(SearchResultType.All);
+      expect(IMDb.determineType({ movies: false })).toBe(SearchResultType.All);
+      expect(IMDb.determineType({})).toBe(SearchResultType.All);
     });
   });
 
@@ -46,20 +46,22 @@ describe('IMDb class', () => {
     it('should to able to get only movies', async () => {
       const imdbInstanceHP = new IMDb({
         query: 'star wars',
-        searchByType: 'movie',
+        searchByType: SearchResultType.Movies,
       });
       const { data } = await imdbInstanceHP.getSearchResult(imdbInstanceHP.query);
-      const filteredData = data.Search.filter((item: ISearchResult) => item.Type === 'movie');
+      const filteredData = data.Search.filter((item: SearchResult) => {
+        return item.Type === 'movie';
+      });
       expect(filteredData.length).toBeGreaterThan(0);
     });
 
     it('should to able to get only series', async () => {
       const imdbInstanceSW = new IMDb({
         query: 'star wars',
-        searchByType: 'series',
+        searchByType: SearchResultType.Series,
       });
       const { data } = await imdbInstanceSW.getSearchResult(imdbInstanceSW.query);
-      const filteredData = data.Search.filter((item: ISearchResult) => item.Type === 'series');
+      const filteredData = data.Search.filter((item: SearchResult) => item.Type === 'series');
       expect(filteredData.length).toBeGreaterThan(0);
     });
   });
