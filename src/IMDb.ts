@@ -5,7 +5,6 @@ const chalk = require('chalk');
 const figlet = require('figlet');
 const axios = require('axios');
 const capitalze = require('lodash/capitalize');
-const config = require('../config');
 const { sanitizeQuery, sortByColumn } = require('./utils');
 
 import { IFormattedSearchResult, IMDbProperties, IMovieOrSeries, ISearchResult, ISortObject } from './interfaces';
@@ -119,7 +118,7 @@ class IMDb implements IMDbProperties {
    * @returns {String}
    */
   public getAPIKey(): string {
-    return config.apikey;
+    return process.env.API_KEY as string;
   }
 
   /**
