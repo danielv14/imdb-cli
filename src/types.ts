@@ -5,7 +5,3 @@ export interface SortObject {
   order: any;
 }
 
-export interface MovieOrSeries {
-  movies?: boolean;
-  series?: boolean;
-}
