@@ -9,7 +9,7 @@ const { sanitizeQuery, sortByColumn } = require('./utils');
 
 import { MovieOrSeries, SortObject } from './types';
 import { IMDbProperties } from './types/imdb';
-import { FormattedSearchResult, SearchResult } from './types/searchResult';
+import { FormattedSearchResult, SearchResult, SearchResultType } from './types/searchResult';
 
 /**
  * Class to  handle scraping of IMDb
@@ -34,21 +34,21 @@ class IMDb implements IMDbProperties {
    * @param {Boolean} series
    * @returns {String}
    */
-  public static determineType({ movies, series }: MovieOrSeries) {
+  public static determineType({ movies, series }: {[key: string]: boolean} ): SearchResultType {
     if (movies) {
-      return 'movie';
+      return SearchResultType.Movies;
     }
     if (series) {
-      return 'series';
+      return SearchResultType.Series;
     }
-    return null;
+    return SearchResultType.All;
   }
   public query: string;
   public originalQuery: string;
   public results: FormattedSearchResult[];
   public outputColor: (text: string) => string;
   public showPlot: boolean;
-  public searchByType: any;
+  public searchByType: SearchResultType;
   public limitPlot: number;
   public sortColumn: any;
   public baseUrl: string;
@@ -60,7 +60,7 @@ class IMDb implements IMDbProperties {
    * @param {integer} [limitPlot=40] Amount to limit plot to before it truncates
    * @param {string} [sortColumn=null] Specify a column to sort by. Supports 'title' or 'year'
    */
-  constructor({ query = '', showPlot = false, searchByType = '', limitPlot = 40, sortColumn = '' }) {
+  constructor({ query = '', showPlot = false, searchByType = SearchResultType.All, limitPlot = 40, sortColumn = '' }) {
     this.query = sanitizeQuery(query);
     this.originalQuery = query;
     this.results = [];
@@ -129,10 +129,10 @@ class IMDb implements IMDbProperties {
    * @returns {Promise}
    */
   public getSearchResult(query: string): Promise<any> {
-    if (this.searchByType) {
-      return axios.get(`${this.baseUrl}&s=${query}&type=${this.searchByType}`);
+    if (this.searchByType === SearchResultType.All) {
+      return axios.get(`${this.baseUrl}&s=${query}`);
     }
-    return axios.get(`${this.baseUrl}&s=${query}`);
+    return axios.get(`${this.baseUrl}&s=${query}&type=${this.searchByType}`);
   }
 
   public getItemByIMDbId(imdbId: string): Promise<any> {

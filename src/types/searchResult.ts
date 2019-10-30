@@ -13,3 +13,9 @@ export interface FormattedSearchResult {
   Plot?: string;
   'IMDb ID': string;
 }
+
+export enum SearchResultType {
+  Movies = 'movie',
+  Series = 'series',
+  All =  'all',
+}
