@@ -39,11 +39,5 @@
     "ts-jest": "^24.0.2",
     "tslint": "^5.18.0",
     "typescript": "^3.5.2"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsc --noEmit && npm run lint",
-      "pre-push": "npm run test"
-    }
   }
 }
