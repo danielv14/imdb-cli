@@ -4,7 +4,6 @@ const tab = require('table-master');
 const chalk = require('chalk');
 const figlet = require('figlet');
 const axios = require('axios');
-const capitalze = require('lodash/capitalize');
 const { sanitizeQuery, sortByColumn } = require('./utils');
 
 import { IMDbProperties } from './types/imdb';
