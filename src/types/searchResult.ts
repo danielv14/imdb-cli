@@ -31,9 +31,14 @@ export enum SearchResultSortOrder {
   Descending = 'desc',
  }
 
+export interface SortObject {
+  items: FormattedSearchResult[];
+  column: string;
+  order: SearchResultSortOrder;
+}
+
 export const SortOrder = {
    [SearchResultSortColumn.Title]: 'Title',
    [SearchResultSortColumn.Year]: 'Year',
    [SearchResultSortColumn.None]: 'None',
-
  };

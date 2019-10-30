@@ -7,7 +7,6 @@ const axios = require('axios');
 const capitalze = require('lodash/capitalize');
 const { sanitizeQuery, sortByColumn } = require('./utils');
 
-import { SortObject } from './types';
 import { IMDbProperties } from './types/imdb';
 import {
   FormattedSearchResult,
@@ -15,6 +14,7 @@ import {
   SearchResultSortColumn,
   SearchResultSortOrder,
   SearchResultType,
+  SortObject,
   SortOrder,
 } from './types/searchResult';
 

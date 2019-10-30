@@ -1,6 +1,5 @@
 import orderBy from 'lodash/orderBy';
-
-import { SortObject } from './types';
+import { SortObject } from './types/searchResult';
 
 /**
  * Encode a string as a URI component
