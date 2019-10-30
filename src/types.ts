@@ -1,8 +1,8 @@
-import { FormattedSearchResult } from './types/searchResult';
+import { FormattedSearchResult, SearchResultSortColumn, SearchResultSortOrder } from './types/searchResult';
 
 export interface SortObject {
   items: FormattedSearchResult[];
-  column: string;
-  order: any;
+  column: SearchResultSortColumn;
+  order: SearchResultSortOrder;
 }
 

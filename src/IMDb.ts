@@ -9,7 +9,14 @@ const { sanitizeQuery, sortByColumn } = require('./utils');
 
 import { SortObject } from './types';
 import { IMDbProperties } from './types/imdb';
-import { FormattedSearchResult, SearchResult, SearchResultType } from './types/searchResult';
+import {
+  FormattedSearchResult,
+  SearchResult,
+  SearchResultSortColumn,
+  SearchResultSortOrder,
+  SearchResultType,
+  SortOrder,
+} from './types/searchResult';
 
 /**
  * Class to  handle scraping of IMDb
@@ -34,7 +41,7 @@ class IMDb implements IMDbProperties {
    * @param {Boolean} series
    * @returns {String}
    */
-  public static determineType({ movies, series }: {[key: string]: boolean} ): SearchResultType {
+  public static determineType({ movies, series }: { [key: string]: boolean }): SearchResultType {
     if (movies) {
       return SearchResultType.Movies;
     }
@@ -50,7 +57,7 @@ class IMDb implements IMDbProperties {
   public showPlot: boolean;
   public searchByType: SearchResultType;
   public limitPlot: number;
-  public sortColumn: any;
+  public sortColumn: SearchResultSortColumn;
   public baseUrl: string;
   /**
    * Creates an instance of IMDb.
@@ -58,9 +65,15 @@ class IMDb implements IMDbProperties {
    * @param {boolean} [showPlot=false] determine if plot is to be shown with search result
    * @param {string} [searchByType=null] Search by type: movies or series
    * @param {integer} [limitPlot=40] Amount to limit plot to before it truncates
-   * @param {string} [sortColumn=null] Specify a column to sort by. Supports 'title' or 'year'
+   * @param {string} [sortColumn=SearchResultSortColumn.None] Specify a column to sort by. Supports 'title' or 'year'
    */
-  constructor({ query = '', showPlot = false, searchByType = SearchResultType.All, limitPlot = 40, sortColumn = '' }) {
+  constructor({
+    query = '',
+    showPlot = false,
+    searchByType = SearchResultType.All,
+    limitPlot = 40,
+    sortColumn = SearchResultSortColumn.None,
+  }) {
     this.query = sanitizeQuery(query);
     this.originalQuery = query;
     this.results = [];
@@ -68,9 +81,8 @@ class IMDb implements IMDbProperties {
     this.showPlot = showPlot;
     this.searchByType = searchByType;
     this.limitPlot = limitPlot;
-    if (sortColumn && this.availableColumnsToSort().includes(sortColumn.toLowerCase())) {
-      this.sortColumn = capitalze(sortColumn);
-    }
+    this.sortColumn = sortColumn;
+
     this.baseUrl = `http://www.omdbapi.com?apikey=${this.getAPIKey()}`;
   }
 
@@ -89,7 +101,7 @@ class IMDb implements IMDbProperties {
   public renderSearchResults(): void {
     if (Object.keys(this.results).length === 0) {
       console.log(chalk.red(`\nCould not find any search results for '${this.originalQuery}'. Please try again.`));
-    } else if (this.sortColumn) {
+    } else if (this.availableColumnsToSort().includes(this.sortColumn)) {
       console.table(this.getSortedSearchResult());
     } else {
       console.table(this.results);
@@ -100,10 +112,16 @@ class IMDb implements IMDbProperties {
    * Get a sorted array of the search result
    */
   public getSortedSearchResult(): SortObject {
+    const orderToSortBy = this.sortColumn === SearchResultSortColumn.Year ?
+    SearchResultSortOrder.Descending
+    : SearchResultSortOrder.Ascending;
+    console.log('order to sort by', orderToSortBy);
+    console.log('column to sort by', this.sortColumn);
+
     return sortByColumn({
       items: this.results,
-      column: this.sortColumn,
-      order: this.sortColumn === 'Title' ? 'asc' : 'desc',
+      column: SortOrder[this.sortColumn],
+      order: orderToSortBy,
     });
   }
 
@@ -112,7 +130,7 @@ class IMDb implements IMDbProperties {
    * @returns {Array}
    */
   public availableColumnsToSort(): string[] {
-    return ['year', 'title'];
+    return [SearchResultSortColumn.Year, SearchResultSortColumn.Title];
   }
 
   /**
