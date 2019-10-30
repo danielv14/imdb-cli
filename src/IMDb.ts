@@ -7,7 +7,7 @@ const axios = require('axios');
 const capitalze = require('lodash/capitalize');
 const { sanitizeQuery, sortByColumn } = require('./utils');
 
-import { IFormattedSearchResult, IMDbProperties, IMovieOrSeries, ISearchResult, ISortObject } from './interfaces';
+import { FormattedSearchResult, IMDbProperties, MovieOrSeries, SearchResult, SortObject } from './types';
 
 /**
  * Class to  handle scraping of IMDb
@@ -32,7 +32,7 @@ class IMDb implements IMDbProperties {
    * @param {Boolean} series
    * @returns {String}
    */
-  public static determineType({ movies, series }: IMovieOrSeries) {
+  public static determineType({ movies, series }: MovieOrSeries) {
     if (movies) {
       return 'movie';
     }
@@ -43,7 +43,7 @@ class IMDb implements IMDbProperties {
   }
   public query: string;
   public originalQuery: string;
-  public results: IFormattedSearchResult[];
+  public results: FormattedSearchResult[];
   public outputColor: (text: string) => string;
   public showPlot: boolean;
   public searchByType: any;
@@ -97,7 +97,7 @@ class IMDb implements IMDbProperties {
   /**
    * Get a sorted array of the search result
    */
-  public getSortedSearchResult(): ISortObject {
+  public getSortedSearchResult(): SortObject {
     return sortByColumn({
       items: this.results,
       column: this.sortColumn,
@@ -153,10 +153,10 @@ class IMDb implements IMDbProperties {
    * Get a formatted search result to display from ISearchResult data
    * @param {Object} input
    * @param {Boolean} includePlot Determine if plot should be included in the formatted result
-   * @returns {IFormattedSearchResult}
+   * @returns {FormattedSearchResult}
    */
-  public getFormattedSearchResult(input: ISearchResult, includePlot: boolean = false): IFormattedSearchResult {
-    const result: IFormattedSearchResult = {
+  public getFormattedSearchResult(input: SearchResult, includePlot: boolean = false): FormattedSearchResult {
+    const result: FormattedSearchResult = {
       'Title': input.Title,
       'Year': input.Year,
       'Type': input.Type,
@@ -187,13 +187,13 @@ class IMDb implements IMDbProperties {
         const promises = await Promise.all(fullPromises);
         const results = promises.map((result: any) => result.data);
         const searchResult = results.map(
-          (result: ISearchResult) => this.getFormattedSearchResult(result, this.showPlot),
+          (result: SearchResult) => this.getFormattedSearchResult(result, this.showPlot),
         );
         this.createSearchResult(searchResult);
         spinner.stop();
         this.renderSearchResults();
       } else {
-        const searchResult = data.Search.map((result: ISearchResult) => this.getFormattedSearchResult(result));
+        const searchResult = data.Search.map((result: SearchResult) => this.getFormattedSearchResult(result));
         this.createSearchResult(searchResult);
         spinner.stop();
         this.renderSearchResults();

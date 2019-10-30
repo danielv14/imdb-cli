@@ -1,6 +1,6 @@
 import orderBy from 'lodash/orderBy';
 
-import { ISortObject } from './interfaces';
+import { SortObject } from './types';
 
 /**
  * Encode a string as a URI component
@@ -15,4 +15,4 @@ export const sanitizeQuery = (query: string) => encodeURIComponent(query);
  * @param {String} column
  * @param {String} order asc or desc
  */
-export const sortByColumn = ({ items, column, order }: ISortObject) => orderBy(items, [column], [order]);
+export const sortByColumn = ({ items, column, order }: SortObject) => orderBy(items, [column], [order]);

@@ -2,7 +2,7 @@ export interface IMDbProperties {
   query: string;
   originalQuery: string;
   baseUrl: string;
-  results: IFormattedSearchResult[];
+  results: FormattedSearchResult[];
   outputColor: (text: string) => string;
   showPlot: boolean;
   searchByType: string;
@@ -10,13 +10,13 @@ export interface IMDbProperties {
   sortColumn?: string;
 }
 
-export interface ISortObject {
+export interface SortObject {
   items: any[];
   column: string;
   order: any;
 }
 
-export interface ISearchResult {
+export interface SearchResult {
   Title: string;
   Year: string;
   Type: string;
@@ -24,7 +24,7 @@ export interface ISearchResult {
   imdbID: string;
 }
 
-export interface IFormattedSearchResult {
+export interface FormattedSearchResult {
   Title: string;
   Year: string;
   Type: string;
@@ -32,7 +32,7 @@ export interface IFormattedSearchResult {
   'IMDb ID': string;
 }
 
-export interface IMovieOrSeries {
+export interface MovieOrSeries {
   movies?: boolean;
   series?: boolean;
 }
