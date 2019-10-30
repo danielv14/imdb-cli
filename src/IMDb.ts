@@ -114,9 +114,6 @@ class IMDb implements IMDbProperties {
     const orderToSortBy = this.sortColumn === SearchResultSortColumn.Year ?
     SearchResultSortOrder.Descending
     : SearchResultSortOrder.Ascending;
-    console.log('order to sort by', orderToSortBy);
-    console.log('column to sort by', this.sortColumn);
-
     return sortByColumn({
       items: this.results,
       column: SortOrder[this.sortColumn],
