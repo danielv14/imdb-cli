@@ -142,11 +142,14 @@ class IMDb implements IMDbProperties {
    * @param {String} query
    * @returns {Promise}
    */
-  public getSearchResult(query: string): Promise<any> {
+  public async getSearchResult(query: string): Promise<SearchResult[]> {
+    const url = `${this.baseUrl}&s=${query}`;
     if (this.searchByType === SearchResultType.All) {
-      return axios.get(`${this.baseUrl}&s=${query}`);
+      const { data } = await axios.get(url);
+      return data.Search;
     }
-    return axios.get(`${this.baseUrl}&s=${query}&type=${this.searchByType}`);
+    const {data: dataBySearchType} = await axios.get(`${url}&type=${this.searchByType}`);
+    return dataBySearchType.Search;
   }
 
   public getItemByIMDbId(imdbId: string): Promise<any> {
