@@ -161,11 +161,11 @@ class IMDb implements IMDbProperties {
    * @param {String} text string to truncate
    * @param {Integer} [limit=40] Limit truncation to a specific amount of chars
    */
-  public getTruncatedText({ text }: { text?: string }): string {
+  public getTruncatedText( text: string, limit: number ): string {
     if (!text) {
       return '';
     }
-    return `${text.substring(0, this.limitPlot)}...`;
+    return `${text.substring(0, limit)}...`;
   }
 
   /**
@@ -182,7 +182,7 @@ class IMDb implements IMDbProperties {
       'IMDb ID': this.outputColor(input.imdbID),
     };
     if (includePlot && input.Plot) {
-      result.Plot = input.Plot;
+      result.Plot = this.getTruncatedText(input.Plot, this.limitPlot);
     }
     return result;
   }
