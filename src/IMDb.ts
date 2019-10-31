@@ -169,7 +169,7 @@ class IMDb implements IMDbProperties {
   }
 
   /**
-   * Get a formatted search result to display from ISearchResult data
+   * Get a formatted search result to display from SearchResult data
    * @param {Object} input
    * @param {Boolean} includePlot Determine if plot should be included in the formatted result
    * @returns {FormattedSearchResult}
