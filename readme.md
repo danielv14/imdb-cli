@@ -41,13 +41,6 @@ CLI is tested with Jest and the following npm commands is available
 * `npm run test` will run the test suite
 * `npm run test:watch` will run the test suite and watch for changes and re-run on demand.
 
-### Git hooks
-
-Husky is used for setting up git hooks for the project. Currently two different git hooks are used
-
-* `"pre-commit"` When commiting checks for typescript errors and linting errors are performed
-* `"pre-push"` When pushing to remote the test suite is run to catch any errors or regression in code.
-
 ## Road Map
 Below is a list with currently planned features for the CLI
 - [x] Clearer seperation of movies and tv-series when displaying the search result
