@@ -39,8 +39,8 @@ describe('IMDb class', () => {
 
   describe('getSearchResult()', () => {
     it('should return search result for a given query', async () => {
-      const { data } = await imdbInstance.getSearchResult(imdbInstance.query);
-      expect(data.Search.length).toBeGreaterThan(0);
+      const response = await imdbInstance.getSearchResult(imdbInstance.query);
+      expect(response.length).toBeGreaterThan(0);
     });
 
     it('should to able to get only movies', async () => {
@@ -48,8 +48,8 @@ describe('IMDb class', () => {
         query: 'star wars',
         searchByType: SearchResultType.Movies,
       });
-      const { data } = await imdbInstanceHP.getSearchResult(imdbInstanceHP.query);
-      const filteredData = data.Search.filter((item: SearchResult) => {
+      const response = await imdbInstanceHP.getSearchResult(imdbInstanceHP.query);
+      const filteredData = response.filter((item: SearchResult) => {
         return item.Type === 'movie';
       });
       expect(filteredData.length).toBeGreaterThan(0);
@@ -60,8 +60,8 @@ describe('IMDb class', () => {
         query: 'star wars',
         searchByType: SearchResultType.Series,
       });
-      const { data } = await imdbInstanceSW.getSearchResult(imdbInstanceSW.query);
-      const filteredData = data.Search.filter((item: SearchResult) => item.Type === 'series');
+      const response = await imdbInstanceSW.getSearchResult(imdbInstanceSW.query);
+      const filteredData = response.filter((item: SearchResult) => item.Type === 'series');
       expect(filteredData.length).toBeGreaterThan(0);
     });
   });
