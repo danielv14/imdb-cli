@@ -69,8 +69,17 @@ describe('IMDb class', () => {
   describe('getItemByIMDbId()', () => {
     it('should get item by IMDb Id', async () => {
       const id = 'tt0458290';
-      const { data } = await imdbInstance.getItemByIMDbId(id);
-      expect(data.imdbID).toMatch(id);
+      const item = await imdbInstance.getItemByIMDbId(id);
+      expect(item.imdbID).toMatch(id);
+    });
+  });
+
+  describe('getFullItemsByIMDBIds()', () => {
+    it('should get items by IMDb Ids', async () => {
+      const ids = ['tt0458290', 'tt0330373'];
+      const items = await imdbInstance.getFullItemsByIMDBIds(ids);
+      expect(items.length).toBe(2);
+      items.map((item, index) => expect(item.imdbID).toEqual(ids[index]));
     });
   });
 
