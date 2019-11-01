@@ -9,6 +9,7 @@ const { sanitizeQuery, sortByColumn } = require('./utils');
 import { IMDbProperties } from './types/imdb';
 import {
   FormattedSearchResult,
+  FullSearchResult,
   SearchResult,
   SearchResultSortColumn,
   SearchResultSortOrder,
@@ -152,8 +153,22 @@ class IMDb implements IMDbProperties {
     return dataBySearchType.Search;
   }
 
-  public getItemByIMDbId(imdbId: string): Promise<any> {
-    return axios.get(`${this.baseUrl}&i=${imdbId}`);
+  /**
+   * Get FullSearchResult for a given imdb id
+   * @param {String} imdbId
+   */
+  public async getItemByIMDbId(imdbId: string): Promise<FullSearchResult> {
+    const { data } = await axios.get(`${this.baseUrl}&i=${imdbId}`);
+    return data as FullSearchResult;
+  }
+
+  /**
+   * Get Multiple FullSearchResult for a given array of imdb ids
+   * @param {Array} imdbId
+   */
+  public async getFullItemsByIMDBIds(imdbIds: string[]): Promise<FullSearchResult[]> {
+    const items = await Promise.all(imdbIds.map((id: string) => this.getItemByIMDbId(id)));
+    return items;
   }
 
   /**
@@ -193,18 +208,16 @@ class IMDb implements IMDbProperties {
   public async search(): Promise<void> {
     const spinner = ora('Searching IMDb. Please wait...').start();
     try {
-      const { data } = await this.getSearchResult(this.query);
+      const resultResponse = await this.getSearchResult(this.query);
       // render empty searh result of no search result was found
-      if (!data.Search) {
+      if (!resultResponse) {
         this.renderSearchResults();
         process.exit();
       }
       if (this.showPlot) {
         // Plot does not exist in response when getting regular search result.
         // Need to fetch the individual search results by imdb id to get their plots
-        const fullPromises = data.Search.map((result: any) => this.getItemByIMDbId(result.imdbID));
-        const promises = await Promise.all(fullPromises);
-        const results = promises.map((result: any) => result.data);
+        const results = await this.getFullItemsByIMDBIds(resultResponse.map((res) => res.imdbID));
         const searchResult = results.map(
           (result: SearchResult) => this.getFormattedSearchResult(result, this.showPlot),
         );
@@ -212,7 +225,7 @@ class IMDb implements IMDbProperties {
         spinner.stop();
         this.renderSearchResults();
       } else {
-        const searchResult = data.Search.map((result: SearchResult) => this.getFormattedSearchResult(result));
+        const searchResult = resultResponse.map((result: SearchResult) => this.getFormattedSearchResult(result));
         this.createSearchResult(searchResult);
         spinner.stop();
         this.renderSearchResults();
