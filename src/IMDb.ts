@@ -208,28 +208,24 @@ class IMDb implements IMDbProperties {
   public async search(): Promise<void> {
     const spinner = ora('Searching IMDb. Please wait...').start();
     try {
-      const resultResponse = await this.getSearchResult(this.query);
-      // render empty searh result of no search result was found
-      if (!resultResponse) {
+      const itemsByQuery = await this.getSearchResult(this.query);
+      if (!itemsByQuery) {
         this.renderSearchResults();
         process.exit();
       }
       if (this.showPlot) {
-        // Plot does not exist in response when getting regular search result.
-        // Need to fetch the individual search results by imdb id to get their plots
-        const results = await this.getFullItemsByIMDBIds(resultResponse.map((res) => res.imdbID));
+        const results = await this.getFullItemsByIMDBIds(itemsByQuery.map((res) => res.imdbID));
         const searchResult = results.map(
           (result: Item) => this.getFormattedSearchResult(result, this.showPlot),
         );
         this.createSearchResult(searchResult);
-        spinner.stop();
-        this.renderSearchResults();
       } else {
-        const searchResult = resultResponse.map((result: Item) => this.getFormattedSearchResult(result));
+        const searchResult = itemsByQuery.map((result: Item) => this.getFormattedSearchResult(result));
         this.createSearchResult(searchResult);
-        spinner.stop();
-        this.renderSearchResults();
       }
+      spinner.stop();
+      this.renderSearchResults();
+
     } catch (e) {
       spinner.stop();
       console.log(`Program exit with error: ${chalk.red(e)}`);
