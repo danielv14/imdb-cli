@@ -168,7 +168,7 @@ class IMDb implements IMDbProperties {
    */
   public async getFullItemsByIMDBIds(imdbIds: string[]): Promise<FullSearchResult[]> {
     const items = await Promise.all(imdbIds.map((id: string) => this.getItemByIMDbId(id)));
-    return items;
+    return items as FullSearchResult[];
   }
 
   /**
