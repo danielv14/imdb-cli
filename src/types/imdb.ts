@@ -1,10 +1,10 @@
-import { FormattedSearchResult } from './searchResult';
+import { FormattedItem } from './searchResult';
 
 export interface IMDbProperties {
   query: string;
   originalQuery: string;
   baseUrl: string;
-  results: FormattedSearchResult[];
+  results: FormattedItem[];
   outputColor: (text: string) => string;
   showPlot: boolean;
   searchByType: string;

@@ -8,9 +8,9 @@ const { sanitizeQuery, sortByColumn } = require('./utils');
 
 import { IMDbProperties } from './types/imdb';
 import {
-  FormattedSearchResult,
-  FullSearchResult,
-  SearchResult,
+  FormattedItem,
+  FullItem,
+  Item,
   SearchResultSortColumn,
   SearchResultSortOrder,
   SearchResultType,
@@ -52,7 +52,7 @@ class IMDb implements IMDbProperties {
   }
   public query: string;
   public originalQuery: string;
-  public results: FormattedSearchResult[];
+  public results: FormattedItem[];
   public outputColor: (text: string) => string;
   public showPlot: boolean;
   public searchByType: SearchResultType;
@@ -143,7 +143,7 @@ class IMDb implements IMDbProperties {
    * @param {String} query
    * @returns {Promise}
    */
-  public async getSearchResult(query: string): Promise<SearchResult[]> {
+  public async getSearchResult(query: string): Promise<Item[]> {
     const url = `${this.baseUrl}&s=${query}`;
     if (this.searchByType === SearchResultType.All) {
       const { data } = await axios.get(url);
@@ -157,18 +157,18 @@ class IMDb implements IMDbProperties {
    * Get FullSearchResult for a given imdb id
    * @param {String} imdbId
    */
-  public async getItemByIMDbId(imdbId: string): Promise<FullSearchResult> {
+  public async getItemByIMDbId(imdbId: string): Promise<FullItem> {
     const { data } = await axios.get(`${this.baseUrl}&i=${imdbId}`);
-    return data as FullSearchResult;
+    return data as FullItem;
   }
 
   /**
    * Get Multiple FullSearchResult for a given array of imdb ids
    * @param {Array} imdbId
    */
-  public async getFullItemsByIMDBIds(imdbIds: string[]): Promise<FullSearchResult[]> {
+  public async getFullItemsByIMDBIds(imdbIds: string[]): Promise<FullItem[]> {
     const items = await Promise.all(imdbIds.map((id: string) => this.getItemByIMDbId(id)));
-    return items as FullSearchResult[];
+    return items as FullItem[];
   }
 
   /**
@@ -187,10 +187,10 @@ class IMDb implements IMDbProperties {
    * Get a formatted search result to display from SearchResult data
    * @param {Object} input
    * @param {Boolean} includePlot Determine if plot should be included in the formatted result
-   * @returns {FormattedSearchResult}
+   * @returns {FormattedItem}
    */
-  public getFormattedSearchResult(input: SearchResult, includePlot: boolean = false): FormattedSearchResult {
-    const result: FormattedSearchResult = {
+  public getFormattedSearchResult(input: Item, includePlot: boolean = false): FormattedItem {
+    const result: FormattedItem = {
       'Title': input.Title,
       'Year': input.Year,
       'Type': input.Type,
@@ -219,13 +219,13 @@ class IMDb implements IMDbProperties {
         // Need to fetch the individual search results by imdb id to get their plots
         const results = await this.getFullItemsByIMDBIds(resultResponse.map((res) => res.imdbID));
         const searchResult = results.map(
-          (result: SearchResult) => this.getFormattedSearchResult(result, this.showPlot),
+          (result: Item) => this.getFormattedSearchResult(result, this.showPlot),
         );
         this.createSearchResult(searchResult);
         spinner.stop();
         this.renderSearchResults();
       } else {
-        const searchResult = resultResponse.map((result: SearchResult) => this.getFormattedSearchResult(result));
+        const searchResult = resultResponse.map((result: Item) => this.getFormattedSearchResult(result));
         this.createSearchResult(searchResult);
         spinner.stop();
         this.renderSearchResults();

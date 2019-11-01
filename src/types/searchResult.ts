@@ -1,4 +1,4 @@
-export interface SearchResult {
+export interface Item {
   Title: string;
   Year: string;
   Type: string;
@@ -6,7 +6,7 @@ export interface SearchResult {
   imdbID: string;
 }
 
-export interface FullSearchResult extends SearchResult {
+export interface FullItem extends Item {
   Rated: string;
   Released: string;
   Runtime: string;
@@ -35,7 +35,7 @@ export interface Rating {
   Value: string;
 }
 
-export interface FormattedSearchResult {
+export interface FormattedItem {
   Title: string;
   Year: string;
   Type: string;
@@ -61,7 +61,7 @@ export enum SearchResultSortOrder {
  }
 
 export interface SortObject {
-  items: FormattedSearchResult[];
+  items: FormattedItem[];
   column: string;
   order: SearchResultSortOrder;
 }
