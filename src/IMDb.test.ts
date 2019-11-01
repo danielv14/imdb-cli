@@ -1,5 +1,5 @@
 import IMDb from './IMDb';
-import { SearchResult, SearchResultType } from './types/searchResult';
+import {Item, SearchResultType } from './types/searchResult';
 
 const queryObj = {
   query: 'harry potter',
@@ -39,8 +39,8 @@ describe('IMDb class', () => {
 
   describe('getSearchResult()', () => {
     it('should return search result for a given query', async () => {
-      const { data } = await imdbInstance.getSearchResult(imdbInstance.query);
-      expect(data.Search.length).toBeGreaterThan(0);
+      const response = await imdbInstance.getSearchResult(imdbInstance.query);
+      expect(response.length).toBeGreaterThan(0);
     });
 
     it('should to able to get only movies', async () => {
@@ -48,8 +48,8 @@ describe('IMDb class', () => {
         query: 'star wars',
         searchByType: SearchResultType.Movies,
       });
-      const { data } = await imdbInstanceHP.getSearchResult(imdbInstanceHP.query);
-      const filteredData = data.Search.filter((item: SearchResult) => {
+      const response = await imdbInstanceHP.getSearchResult(imdbInstanceHP.query);
+      const filteredData = response.filter((item: Item) => {
         return item.Type === 'movie';
       });
       expect(filteredData.length).toBeGreaterThan(0);
@@ -60,8 +60,8 @@ describe('IMDb class', () => {
         query: 'star wars',
         searchByType: SearchResultType.Series,
       });
-      const { data } = await imdbInstanceSW.getSearchResult(imdbInstanceSW.query);
-      const filteredData = data.Search.filter((item: SearchResult) => item.Type === 'series');
+      const response = await imdbInstanceSW.getSearchResult(imdbInstanceSW.query);
+      const filteredData = response.filter((item: Item) => item.Type === 'series');
       expect(filteredData.length).toBeGreaterThan(0);
     });
   });
@@ -69,16 +69,25 @@ describe('IMDb class', () => {
   describe('getItemByIMDbId()', () => {
     it('should get item by IMDb Id', async () => {
       const id = 'tt0458290';
-      const { data } = await imdbInstance.getItemByIMDbId(id);
-      expect(data.imdbID).toMatch(id);
+      const item = await imdbInstance.getItemByIMDbId(id);
+      expect(item.imdbID).toMatch(id);
+    });
+  });
+
+  describe('getFullItemsByIMDBIds()', () => {
+    it('should get items by IMDb Ids', async () => {
+      const ids = ['tt0458290', 'tt0330373'];
+      const items = await imdbInstance.getFullItemsByIMDBIds(ids);
+      expect(items.length).toBe(2);
+      items.map((item, index) => expect(item.imdbID).toEqual(ids[index]));
     });
   });
 
   describe('getTruncatedtext()', () => {
     it('should properly truncate text', () => {
-      const text = imdbInstance.getTruncatedText({
-        text: 'Harry, Ron, and Hermione search for Voldemort and other things that will be truncated',
-      });
+      const text = imdbInstance.getTruncatedText(
+        'Harry, Ron, and Hermione search for Voldemort and other things that will be truncated', 40,
+      );
       expect(text.includes('truncated')).not.toBeTruthy();
       expect(text.includes('Harry, Ron, and Hermione search')).toBeTruthy();
       expect(text.includes('...')).toBeTruthy();
