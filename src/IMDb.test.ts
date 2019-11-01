@@ -1,5 +1,5 @@
 import IMDb from './IMDb';
-import { SearchResult, SearchResultType } from './types/searchResult';
+import {Item, SearchResultType } from './types/searchResult';
 
 const queryObj = {
   query: 'harry potter',
@@ -49,7 +49,7 @@ describe('IMDb class', () => {
         searchByType: SearchResultType.Movies,
       });
       const response = await imdbInstanceHP.getSearchResult(imdbInstanceHP.query);
-      const filteredData = response.filter((item: SearchResult) => {
+      const filteredData = response.filter((item: Item) => {
         return item.Type === 'movie';
       });
       expect(filteredData.length).toBeGreaterThan(0);
@@ -61,7 +61,7 @@ describe('IMDb class', () => {
         searchByType: SearchResultType.Series,
       });
       const response = await imdbInstanceSW.getSearchResult(imdbInstanceSW.query);
-      const filteredData = response.filter((item: SearchResult) => item.Type === 'series');
+      const filteredData = response.filter((item: Item) => item.Type === 'series');
       expect(filteredData.length).toBeGreaterThan(0);
     });
   });
