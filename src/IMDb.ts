@@ -4,11 +4,19 @@ const tab = require('table-master');
 const chalk = require('chalk');
 const figlet = require('figlet');
 const axios = require('axios');
-const capitalze = require('lodash/capitalize');
-const config = require('../config');
 const { sanitizeQuery, sortByColumn } = require('./utils');
 
-import { IFormattedSearchResult, IMDbProperties, IMovieOrSeries, ISearchResult, ISortObject } from './interfaces';
+import { IMDbProperties } from './types/imdb';
+import {
+  FormattedItem,
+  FullItem,
+  Item,
+  SearchResultSortColumn,
+  SearchResultSortOrder,
+  SearchResultType,
+  SortObject,
+  SortOrder,
+} from './types/searchResult';
 
 /**
  * Class to  handle scraping of IMDb
@@ -33,23 +41,23 @@ class IMDb implements IMDbProperties {
    * @param {Boolean} series
    * @returns {String}
    */
-  public static determineType({ movies, series }: IMovieOrSeries) {
+  public static determineType({ movies, series }: { [key: string]: boolean }): SearchResultType {
     if (movies) {
-      return 'movie';
+      return SearchResultType.Movies;
     }
     if (series) {
-      return 'series';
+      return SearchResultType.Series;
     }
-    return null;
+    return SearchResultType.All;
   }
   public query: string;
   public originalQuery: string;
-  public results: IFormattedSearchResult[];
+  public results: FormattedItem[];
   public outputColor: (text: string) => string;
   public showPlot: boolean;
-  public searchByType: any;
+  public searchByType: SearchResultType;
   public limitPlot: number;
-  public sortColumn: any;
+  public sortColumn: SearchResultSortColumn;
   public baseUrl: string;
   /**
    * Creates an instance of IMDb.
@@ -57,9 +65,15 @@ class IMDb implements IMDbProperties {
    * @param {boolean} [showPlot=false] determine if plot is to be shown with search result
    * @param {string} [searchByType=null] Search by type: movies or series
    * @param {integer} [limitPlot=40] Amount to limit plot to before it truncates
-   * @param {string} [sortColumn=null] Specify a column to sort by. Supports 'title' or 'year'
+   * @param {string} [sortColumn=SearchResultSortColumn.None] Specify a column to sort by. Supports 'title' or 'year'
    */
-  constructor({ query = '', showPlot = false, searchByType = '', limitPlot = 40, sortColumn = '' }) {
+  constructor({
+    query = '',
+    showPlot = false,
+    searchByType = SearchResultType.All,
+    limitPlot = 40,
+    sortColumn = SearchResultSortColumn.None,
+  }) {
     this.query = sanitizeQuery(query);
     this.originalQuery = query;
     this.results = [];
@@ -67,9 +81,8 @@ class IMDb implements IMDbProperties {
     this.showPlot = showPlot;
     this.searchByType = searchByType;
     this.limitPlot = limitPlot;
-    if (sortColumn && this.availableColumnsToSort().includes(sortColumn.toLowerCase())) {
-      this.sortColumn = capitalze(sortColumn);
-    }
+    this.sortColumn = sortColumn;
+
     this.baseUrl = `http://www.omdbapi.com?apikey=${this.getAPIKey()}`;
   }
 
@@ -88,7 +101,7 @@ class IMDb implements IMDbProperties {
   public renderSearchResults(): void {
     if (Object.keys(this.results).length === 0) {
       console.log(chalk.red(`\nCould not find any search results for '${this.originalQuery}'. Please try again.`));
-    } else if (this.sortColumn) {
+    } else if (this.availableColumnsToSort().includes(this.sortColumn)) {
       console.table(this.getSortedSearchResult());
     } else {
       console.table(this.results);
@@ -98,11 +111,14 @@ class IMDb implements IMDbProperties {
   /**
    * Get a sorted array of the search result
    */
-  public getSortedSearchResult(): ISortObject {
+  public getSortedSearchResult(): SortObject {
+    const orderToSortBy = this.sortColumn === SearchResultSortColumn.Year ?
+    SearchResultSortOrder.Descending
+    : SearchResultSortOrder.Ascending;
     return sortByColumn({
       items: this.results,
-      column: this.sortColumn,
-      order: this.sortColumn === 'Title' ? 'asc' : 'desc',
+      column: SortOrder[this.sortColumn],
+      order: orderToSortBy,
     });
   }
 
@@ -111,7 +127,7 @@ class IMDb implements IMDbProperties {
    * @returns {Array}
    */
   public availableColumnsToSort(): string[] {
-    return ['year', 'title'];
+    return [SearchResultSortColumn.Year, SearchResultSortColumn.Title];
   }
 
   /**
@@ -119,7 +135,7 @@ class IMDb implements IMDbProperties {
    * @returns {String}
    */
   public getAPIKey(): string {
-    return config.apikey;
+    return process.env.API_KEY as string;
   }
 
   /**
@@ -127,15 +143,32 @@ class IMDb implements IMDbProperties {
    * @param {String} query
    * @returns {Promise}
    */
-  public getSearchResult(query: string): Promise<any> {
-    if (this.searchByType) {
-      return axios.get(`${this.baseUrl}&s=${query}&type=${this.searchByType}`);
+  public async getSearchResult(query: string): Promise<Item[]> {
+    const url = `${this.baseUrl}&s=${query}`;
+    if (this.searchByType === SearchResultType.All) {
+      const { data } = await axios.get(url);
+      return data.Search;
     }
-    return axios.get(`${this.baseUrl}&s=${query}`);
+    const {data: dataBySearchType} = await axios.get(`${url}&type=${this.searchByType}`);
+    return dataBySearchType.Search;
   }
 
-  public getItemByIMDbId(imdbId: string): Promise<any> {
-    return axios.get(`${this.baseUrl}&i=${imdbId}`);
+  /**
+   * Get FullSearchResult for a given imdb id
+   * @param {String} imdbId
+   */
+  public async getItemByIMDbId(imdbId: string): Promise<FullItem> {
+    const { data } = await axios.get(`${this.baseUrl}&i=${imdbId}`);
+    return data as FullItem;
+  }
+
+  /**
+   * Get Multiple FullSearchResult for a given array of imdb ids
+   * @param {Array} imdbId
+   */
+  public async getFullItemsByIMDBIds(imdbIds: string[]): Promise<FullItem[]> {
+    const items = await Promise.all(imdbIds.map((id: string) => this.getItemByIMDbId(id)));
+    return items as FullItem[];
   }
 
   /**
@@ -143,28 +176,28 @@ class IMDb implements IMDbProperties {
    * @param {String} text string to truncate
    * @param {Integer} [limit=40] Limit truncation to a specific amount of chars
    */
-  public getTruncatedText({ text }: { text?: string }): string {
+  public getTruncatedText( text: string, limit: number ): string {
     if (!text) {
       return '';
     }
-    return `${text.substring(0, this.limitPlot)}...`;
+    return `${text.substring(0, limit)}...`;
   }
 
   /**
-   * Get a formatted search result to display from ISearchResult data
+   * Get a formatted search result to display from SearchResult data
    * @param {Object} input
    * @param {Boolean} includePlot Determine if plot should be included in the formatted result
-   * @returns {IFormattedSearchResult}
+   * @returns {FormattedItem}
    */
-  public getFormattedSearchResult(input: ISearchResult, includePlot: boolean = false): IFormattedSearchResult {
-    const result: IFormattedSearchResult = {
+  public getFormattedSearchResult(input: Item, includePlot: boolean = false): FormattedItem {
+    const result: FormattedItem = {
       'Title': input.Title,
       'Year': input.Year,
       'Type': input.Type,
       'IMDb ID': this.outputColor(input.imdbID),
     };
     if (includePlot && input.Plot) {
-      result.Plot = input.Plot;
+      result.Plot = this.getTruncatedText(input.Plot, this.limitPlot);
     }
     return result;
   }
@@ -175,30 +208,24 @@ class IMDb implements IMDbProperties {
   public async search(): Promise<void> {
     const spinner = ora('Searching IMDb. Please wait...').start();
     try {
-      const { data } = await this.getSearchResult(this.query);
-      // render empty searh result of no search result was found
-      if (!data.Search) {
+      const itemsByQuery = await this.getSearchResult(this.query);
+      if (!itemsByQuery) {
         this.renderSearchResults();
         process.exit();
       }
       if (this.showPlot) {
-        // Plot does not exist in response when getting regular search result.
-        // Need to fetch the individual search results by imdb id to get their plots
-        const fullPromises = data.Search.map((result: any) => this.getItemByIMDbId(result.imdbID));
-        const promises = await Promise.all(fullPromises);
-        const results = promises.map((result: any) => result.data);
+        const results = await this.getFullItemsByIMDBIds(itemsByQuery.map((res) => res.imdbID));
         const searchResult = results.map(
-          (result: ISearchResult) => this.getFormattedSearchResult(result, this.showPlot),
+          (result: Item) => this.getFormattedSearchResult(result, this.showPlot),
         );
         this.createSearchResult(searchResult);
-        spinner.stop();
-        this.renderSearchResults();
       } else {
-        const searchResult = data.Search.map((result: ISearchResult) => this.getFormattedSearchResult(result));
+        const searchResult = itemsByQuery.map((result: Item) => this.getFormattedSearchResult(result));
         this.createSearchResult(searchResult);
-        spinner.stop();
-        this.renderSearchResults();
       }
+      spinner.stop();
+      this.renderSearchResults();
+
     } catch (e) {
       spinner.stop();
       console.log(`Program exit with error: ${chalk.red(e)}`);

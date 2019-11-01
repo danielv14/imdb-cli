@@ -1,5 +1,5 @@
 import IMDb from './IMDb';
-import { ISearchResult } from './interfaces';
+import {Item, SearchResultType } from './types/searchResult';
 
 const queryObj = {
   query: 'harry potter',
@@ -18,16 +18,16 @@ describe('IMDb class', () => {
 
   it('should default to not search by any type or show plot', () => {
     expect(imdbInstance.showPlot).toBe(false);
-    expect(imdbInstance.searchByType).toBe('');
+    expect(imdbInstance.searchByType).toBe(SearchResultType.All);
   });
 
   describe('determineType()', () => {
     it('should return the right type', () => {
-      expect(IMDb.determineType({ movies: true })).toMatch('movie');
-      expect(IMDb.determineType({ series: true })).toMatch('series');
-      expect(IMDb.determineType({ series: false })).toBe(null);
-      expect(IMDb.determineType({ movies: false })).toBe(null);
-      expect(IMDb.determineType({})).toBe(null);
+      expect(IMDb.determineType({ movies: true })).toMatch(SearchResultType.Movies);
+      expect(IMDb.determineType({ series: true })).toMatch(SearchResultType.Series);
+      expect(IMDb.determineType({ series: false })).toBe(SearchResultType.All);
+      expect(IMDb.determineType({ movies: false })).toBe(SearchResultType.All);
+      expect(IMDb.determineType({})).toBe(SearchResultType.All);
     });
   });
 
@@ -39,27 +39,29 @@ describe('IMDb class', () => {
 
   describe('getSearchResult()', () => {
     it('should return search result for a given query', async () => {
-      const { data } = await imdbInstance.getSearchResult(imdbInstance.query);
-      expect(data.Search.length).toBeGreaterThan(0);
+      const response = await imdbInstance.getSearchResult(imdbInstance.query);
+      expect(response.length).toBeGreaterThan(0);
     });
 
     it('should to able to get only movies', async () => {
       const imdbInstanceHP = new IMDb({
         query: 'star wars',
-        searchByType: 'movie',
+        searchByType: SearchResultType.Movies,
       });
-      const { data } = await imdbInstanceHP.getSearchResult(imdbInstanceHP.query);
-      const filteredData = data.Search.filter((item: ISearchResult) => item.Type === 'movie');
+      const response = await imdbInstanceHP.getSearchResult(imdbInstanceHP.query);
+      const filteredData = response.filter((item: Item) => {
+        return item.Type === 'movie';
+      });
       expect(filteredData.length).toBeGreaterThan(0);
     });
 
     it('should to able to get only series', async () => {
       const imdbInstanceSW = new IMDb({
         query: 'star wars',
-        searchByType: 'series',
+        searchByType: SearchResultType.Series,
       });
-      const { data } = await imdbInstanceSW.getSearchResult(imdbInstanceSW.query);
-      const filteredData = data.Search.filter((item: ISearchResult) => item.Type === 'series');
+      const response = await imdbInstanceSW.getSearchResult(imdbInstanceSW.query);
+      const filteredData = response.filter((item: Item) => item.Type === 'series');
       expect(filteredData.length).toBeGreaterThan(0);
     });
   });
@@ -67,16 +69,25 @@ describe('IMDb class', () => {
   describe('getItemByIMDbId()', () => {
     it('should get item by IMDb Id', async () => {
       const id = 'tt0458290';
-      const { data } = await imdbInstance.getItemByIMDbId(id);
-      expect(data.imdbID).toMatch(id);
+      const item = await imdbInstance.getItemByIMDbId(id);
+      expect(item.imdbID).toMatch(id);
+    });
+  });
+
+  describe('getFullItemsByIMDBIds()', () => {
+    it('should get items by IMDb Ids', async () => {
+      const ids = ['tt0458290', 'tt0330373'];
+      const items = await imdbInstance.getFullItemsByIMDBIds(ids);
+      expect(items.length).toBe(2);
+      items.map((item, index) => expect(item.imdbID).toEqual(ids[index]));
     });
   });
 
   describe('getTruncatedtext()', () => {
     it('should properly truncate text', () => {
-      const text = imdbInstance.getTruncatedText({
-        text: 'Harry, Ron, and Hermione search for Voldemort and other things that will be truncated',
-      });
+      const text = imdbInstance.getTruncatedText(
+        'Harry, Ron, and Hermione search for Voldemort and other things that will be truncated', 40,
+      );
       expect(text.includes('truncated')).not.toBeTruthy();
       expect(text.includes('Harry, Ron, and Hermione search')).toBeTruthy();
       expect(text.includes('...')).toBeTruthy();
