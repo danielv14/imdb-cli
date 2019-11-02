@@ -15,3 +15,11 @@ export const sanitizeQuery = (query: string) => encodeURIComponent(query);
  * @param {String} order asc or desc
  */
 export const sortByColumn = ({ items, column, order }: SortObject) => orderBy(items, [column], [order]);
+
+/**
+ * Truncate text
+ * @param {String} text
+ * @param {Number} limit
+ * @returns {String}
+ */
+export const truncate = (text: string, limit: number): string => text ?  `${text.substring(0, limit)}...` : '';
