@@ -18,6 +18,8 @@ import {
   SortOrder,
 } from './types/searchResult';
 
+import {getItemById, getItemsByIds, searchByQuery, searchByQueryAndType} from './omdbApi';
+
 /**
  * Class to  handle scraping of IMDb
  *
@@ -58,7 +60,6 @@ class IMDb implements IMDbProperties {
   public searchByType: SearchResultType;
   public limitPlot: number;
   public sortColumn: SearchResultSortColumn;
-  public baseUrl: string;
   /**
    * Creates an instance of IMDb.
    * @param {string} query - search query
@@ -82,8 +83,6 @@ class IMDb implements IMDbProperties {
     this.searchByType = searchByType;
     this.limitPlot = limitPlot;
     this.sortColumn = sortColumn;
-
-    this.baseUrl = `http://www.omdbapi.com?apikey=${this.getAPIKey()}`;
   }
 
   /**
@@ -131,43 +130,32 @@ class IMDb implements IMDbProperties {
   }
 
   /**
-   * Get the api key to use for omdb api
-   * @returns {String}
-   */
-  public getAPIKey(): string {
-    return process.env.API_KEY as string;
-  }
-
-  /**
    * Get search result promise by query
    * @param {String} query
    * @returns {Promise}
    */
   public async getSearchResult(query: string): Promise<Item[]> {
-    const url = `${this.baseUrl}&s=${query}`;
     if (this.searchByType === SearchResultType.All) {
-      const { data } = await axios.get(url);
-      return data.Search;
+      return searchByQuery(query);
     }
-    const {data: dataBySearchType} = await axios.get(`${url}&type=${this.searchByType}`);
-    return dataBySearchType.Search;
+    return searchByQueryAndType(query, this.searchByType);
   }
 
   /**
-   * Get FullSearchResult for a given imdb id
+   * Get item for a given imdb id
    * @param {String} imdbId
    */
   public async getItemByIMDbId(imdbId: string): Promise<FullItem> {
-    const { data } = await axios.get(`${this.baseUrl}&i=${imdbId}`);
-    return data as FullItem;
+    const item = await getItemById(imdbId);
+    return item;
   }
 
   /**
-   * Get Multiple FullSearchResult for a given array of imdb ids
+   * Get multiple item for a given array of imdb ids
    * @param {Array} imdbId
    */
   public async getFullItemsByIMDBIds(imdbIds: string[]): Promise<FullItem[]> {
-    const items = await Promise.all(imdbIds.map((id: string) => this.getItemByIMDbId(id)));
+    const items = await getItemsByIds(imdbIds);
     return items as FullItem[];
   }
 

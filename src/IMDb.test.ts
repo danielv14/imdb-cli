@@ -31,12 +31,6 @@ describe('IMDb class', () => {
     });
   });
 
-  describe('getAPIKey()', () => {
-    it('should return the api key', () => {
-      expect(imdbInstance.getAPIKey()).not.toBeNull();
-    });
-  });
-
   describe('getSearchResult()', () => {
     it('should return search result for a given query', async () => {
       const response = await imdbInstance.getSearchResult(imdbInstance.query);
