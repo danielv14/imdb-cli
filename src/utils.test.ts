@@ -1,5 +1,5 @@
 import { SearchResultSortColumn, SearchResultSortOrder, SearchResultType, SortOrder } from './types/searchResult';
-import { sanitizeQuery, sortByColumn } from './utils';
+import { sanitizeQuery, sortByColumn, truncate } from './utils';
 
 describe('Utils functions', () => {
   describe('sanitizeQuery()', () => {
@@ -37,6 +37,16 @@ describe('Utils functions', () => {
       });
       expect(sortedByTitle[0].Title).toMatch('a');
       expect(sortedByYear[0].Year === '3').toBeTruthy();
+    });
+  });
+  describe('truncate()', () => {
+    it('should properly truncate text', () => {
+      const text = truncate(
+        'Harry, Ron, and Hermione search for Voldemort and other things that will be truncated', 40,
+      );
+      expect(text.includes('truncated')).not.toBeTruthy();
+      expect(text.includes('Harry, Ron, and Hermione search')).toBeTruthy();
+      expect(text.includes('...')).toBeTruthy();
     });
   });
 });

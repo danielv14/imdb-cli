@@ -19,6 +19,7 @@ import {
 } from './types/searchResult';
 
 import { getItemById, getItemsByIds, searchByQuery, searchByQueryAndType } from './omdbApi';
+import { sanitizeQuery, sortByColumn, truncate } from './utils';
 
 /**
  * Class to  handle scraping of IMDb
@@ -160,18 +161,6 @@ class IMDb implements IMDbProperties {
   }
 
   /**
-   *
-   * @param {String} text string to truncate
-   * @param {Integer} [limit=40] Limit truncation to a specific amount of chars
-   */
-  public getTruncatedText( text: string, limit: number ): string {
-    if (!text) {
-      return '';
-    }
-    return `${text.substring(0, limit)}...`;
-  }
-
-  /**
    * Get a formatted search result to display from SearchResult data
    * @param {Object} input
    * @param {Boolean} includePlot Determine if plot should be included in the formatted result
@@ -185,7 +174,7 @@ class IMDb implements IMDbProperties {
       'IMDb ID': this.outputColor(input.imdbID),
     };
     if (includePlot && input.Plot) {
-      result.Plot = this.getTruncatedText(input.Plot, this.limitPlot);
+      result.Plot = truncate(input.Plot, this.limitPlot);
     }
     return result;
   }
