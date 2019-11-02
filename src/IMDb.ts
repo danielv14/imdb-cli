@@ -18,7 +18,7 @@ import {
   SortOrder,
 } from './types/searchResult';
 
-import {getItemById, getItemsByIds, searchByQuery, searchByQueryAndType} from './omdbApi';
+import { getItemById, getItemsByIds, searchByQuery, searchByQueryAndType } from './omdbApi';
 
 /**
  * Class to  handle scraping of IMDb
