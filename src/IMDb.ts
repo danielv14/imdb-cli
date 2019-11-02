@@ -3,8 +3,6 @@ const ora = require('ora');
 const tab = require('table-master');
 const chalk = require('chalk');
 const figlet = require('figlet');
-const axios = require('axios');
-const { sanitizeQuery, sortByColumn } = require('./utils');
 
 import { IMDbProperties } from './types/imdb';
 import {
@@ -14,7 +12,6 @@ import {
   SearchResultSortColumn,
   SearchResultSortOrder,
   SearchResultType,
-  SortObject,
   SortOrder,
 } from './types/searchResult';
 
@@ -111,7 +108,7 @@ class IMDb implements IMDbProperties {
   /**
    * Get a sorted array of the search result
    */
-  public getSortedSearchResult(): SortObject {
+  public getSortedSearchResult() {
     const orderToSortBy = this.sortColumn === SearchResultSortColumn.Year ?
     SearchResultSortOrder.Descending
     : SearchResultSortOrder.Ascending;
