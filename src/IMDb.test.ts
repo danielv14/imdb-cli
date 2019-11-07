@@ -100,14 +100,4 @@ describe('IMDb class', () => {
       'Title,Year,Type,Plot,IMDb ID'.split(',').map((objKey: string) => expect(objFormatted).toHaveProperty(objKey));
     });
   });
-
-  describe('createSearchResult()', () => {
-    it('should add search results from a given array', () => {
-      const results = [{ Title: 'a' }, { Title: 'b' }];
-      expect(imdbInstance.results.length).toBe(0);
-      imdbInstance.createSearchResult(results);
-      expect(imdbInstance.results.length).toBe(results.length);
-      expect(imdbInstance.results[0].Title).toMatch(results[0].Title);
-    });
-  });
 });

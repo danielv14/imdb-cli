@@ -51,8 +51,6 @@ class IMDb implements IMDbProperties {
     return SearchResultType.All;
   }
   public query: string;
-  public originalQuery: string;
-  public results: FormattedItem[];
   public outputColor: (text: string) => string;
   public showPlot: boolean;
   public searchByType: SearchResultType;
@@ -73,9 +71,7 @@ class IMDb implements IMDbProperties {
     limitPlot = 40,
     sortColumn = SearchResultSortColumn.None,
   }) {
-    this.query = sanitizeQuery(query);
-    this.originalQuery = query;
-    this.results = [];
+    this.query = query;
     this.outputColor = chalk.hex('#f3ce13');
     this.showPlot = showPlot;
     this.searchByType = searchByType;
@@ -84,36 +80,31 @@ class IMDb implements IMDbProperties {
   }
 
   /**
-   * Push to results array
-   * @param {Array} results Array of result objects to later display
-   */
-  public createSearchResult(results: any[]): void {
-    results.forEach((result) => this.results.push(result));
-  }
-
-  /**
    * Render either a table with search results
    * or a message of no search results were found
    */
-  public renderSearchResults(): void {
-    if (Object.keys(this.results).length === 0) {
-      console.log(chalk.red(`\nCould not find any search results for '${this.originalQuery}'. Please try again.`));
-    } else if (this.availableColumnsToSort().includes(this.sortColumn)) {
-      console.table(this.getSortedSearchResult());
-    } else {
-      console.table(this.results);
+  public renderSearchResults(result?: FormattedItem[]): void {
+    if (!result) {
+      console.log(chalk.red(`\nCould not find any search results for '${this.query}'. Please try again.`));
+      return;
     }
+    if (this.availableColumnsToSort.includes(this.sortColumn)) {
+      console.table(this.getSortedSearchResult(result));
+      return;
+    }
+    console.table(result);
+    return;
   }
 
   /**
    * Get a sorted array of the search result
    */
-  public getSortedSearchResult() {
+  public getSortedSearchResult(result: FormattedItem[]) {
     const orderToSortBy = this.sortColumn === SearchResultSortColumn.Year ?
     SearchResultSortOrder.Descending
     : SearchResultSortOrder.Ascending;
     return sortByColumn({
-      items: this.results,
+      items: result,
       column: SortOrder[this.sortColumn],
       order: orderToSortBy,
     });
@@ -123,20 +114,22 @@ class IMDb implements IMDbProperties {
    * Get available values to sort by
    * @returns {Array}
    */
-  public availableColumnsToSort(): string[] {
+  get availableColumnsToSort(): SearchResultSortColumn[] {
     return [SearchResultSortColumn.Year, SearchResultSortColumn.Title];
   }
 
   /**
-   * Get search result promise by query
+   * Get search result promise by query.
+   * Method will sanitize the input query
    * @param {String} query
    * @returns {Promise}
    */
   public async getSearchResult(query: string): Promise<Item[]> {
+    const sanitizedQuery = sanitizeQuery(query);
     if (this.searchByType === SearchResultType.All) {
-      return searchByQuery(query);
+      return searchByQuery(sanitizedQuery);
     }
-    return searchByQueryAndType(query, this.searchByType);
+    return searchByQueryAndType(sanitizedQuery, this.searchByType);
   }
 
   /**
@@ -187,18 +180,17 @@ class IMDb implements IMDbProperties {
         this.renderSearchResults();
         process.exit();
       }
+      let searchResult;
       if (this.showPlot) {
         const results = await this.getFullItemsByIMDBIds(itemsByQuery.map((res) => res.imdbID));
-        const searchResult = results.map(
+        searchResult = results.map(
           (result: Item) => this.getFormattedSearchResult(result, this.showPlot),
-        );
-        this.createSearchResult(searchResult);
+        ) as FormattedItem[];
       } else {
-        const searchResult = itemsByQuery.map((result: Item) => this.getFormattedSearchResult(result));
-        this.createSearchResult(searchResult);
+        searchResult = itemsByQuery.map((result: Item) => this.getFormattedSearchResult(result));
       }
       spinner.stop();
-      this.renderSearchResults();
+      this.renderSearchResults(searchResult);
 
     } catch (e) {
       spinner.stop();
