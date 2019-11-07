@@ -51,7 +51,6 @@ class IMDb implements IMDbProperties {
     return SearchResultType.All;
   }
   public query: string;
-  public originalQuery: string;
   public outputColor: (text: string) => string;
   public showPlot: boolean;
   public searchByType: SearchResultType;
@@ -72,8 +71,7 @@ class IMDb implements IMDbProperties {
     limitPlot = 40,
     sortColumn = SearchResultSortColumn.None,
   }) {
-    this.query = sanitizeQuery(query);
-    this.originalQuery = query;
+    this.query = query;
     this.outputColor = chalk.hex('#f3ce13');
     this.showPlot = showPlot;
     this.searchByType = searchByType;
@@ -87,7 +85,7 @@ class IMDb implements IMDbProperties {
    */
   public renderSearchResults(result?: FormattedItem[]): void {
     if (!result) {
-      console.log(chalk.red(`\nCould not find any search results for '${this.originalQuery}'. Please try again.`));
+      console.log(chalk.red(`\nCould not find any search results for '${this.query}'. Please try again.`));
       return;
     }
     if (this.availableColumnsToSort.includes(this.sortColumn)) {
@@ -121,15 +119,17 @@ class IMDb implements IMDbProperties {
   }
 
   /**
-   * Get search result promise by query
+   * Get search result promise by query.
+   * Method will sanitize the input query
    * @param {String} query
    * @returns {Promise}
    */
   public async getSearchResult(query: string): Promise<Item[]> {
+    const sanitizedQuery = sanitizeQuery(query);
     if (this.searchByType === SearchResultType.All) {
-      return searchByQuery(query);
+      return searchByQuery(sanitizedQuery);
     }
-    return searchByQueryAndType(query, this.searchByType);
+    return searchByQueryAndType(sanitizedQuery, this.searchByType);
   }
 
   /**
