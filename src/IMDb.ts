@@ -116,7 +116,7 @@ class IMDb implements IMDbProperties {
    * Get available values to sort by
    * @returns {Array}
    */
-  get availableColumnsToSort(): string[] {
+  get availableColumnsToSort(): SearchResultSortColumn[] {
     return [SearchResultSortColumn.Year, SearchResultSortColumn.Title];
   }
 
