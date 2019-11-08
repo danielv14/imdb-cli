@@ -1,5 +1,5 @@
 const axios = require('axios');
-import {FullItem, Item, SearchResultType} from './types/searchResult';
+import { FullItem, Item, SearchResultType, Season } from './types/searchResult';
 
 const API_KEY = process.env.API_KEY;
 const BASE_URL = `http://www.omdbapi.com?apikey=${API_KEY}`;
@@ -23,3 +23,12 @@ export const getItemsByIds = async (ids: string[]): Promise<FullItem[]> => {
   const items = await Promise.all(ids.map((id: string) => getItemById(id)));
   return items as FullItem[];
 };
+
+export const getSeasonFromTitle = async (title: string, season: number) => {
+  const { data } = await axios.get(`${BASE_URL}&t=${title}&Season=${season}`);
+  return data as Season;
+};
+
+export const getSeasonFromId = async (id: string, season: number) => {
+  const { data } = await axios.get(`${BASE_URL}&i=${id}&Season=${season}&Episode=1`);
+  return data as Season; };
