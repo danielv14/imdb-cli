@@ -9,20 +9,20 @@
       expect(items.length).toBeGreaterThan(1);
     });
   });
-  describe('searchByQueryAndType()', async () => {
+  describe('searchByQueryAndType()', () => {
     it('should get search result for a given query and type', async () => {
       const items = await omdbApi.searchByQueryAndType(sanitizeQuery('Star wars'), SearchResultType.Series);
       items.map((item) => expect(item.Type).toEqual(SearchResultType.Series));
     });
   });
-  describe('getItemById()', async () => {
+  describe('getItemById()', () => {
     it('should get a given item for a imdb id', async () => {
       const id = 'tt1201607';
       const item = await omdbApi.getItemById(id);
       expect(item.imdbID).toEqual(id);
     });
   });
-  describe('getItemsByIds()', async () => {
+  describe('getItemsByIds()', () => {
     it('should get a given items for imdb ids', async () => {
       const ids = ['tt1201607', 'tt0241527'];
       const items = await omdbApi.getItemsByIds(ids);
