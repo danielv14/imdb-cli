@@ -31,4 +31,5 @@ export const getSeasonFromTitle = async (title: string, season: number) => {
 
 export const getSeasonFromId = async (id: string, season: number) => {
   const { data } = await axios.get(`${BASE_URL}&i=${id}&Season=${season}&Episode=1`);
-  return data as Season; };
+  return data as Season;
+};
