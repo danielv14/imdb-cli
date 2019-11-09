@@ -1,5 +1,5 @@
 const axios = require('axios');
-import { FullItem, Item, SearchResultType, Season } from './types/searchResult';
+import { FullItem, FullSeries, Item, SearchResultType, Season } from './types/searchResult';
 
 const API_KEY = process.env.API_KEY;
 const BASE_URL = `http://www.omdbapi.com?apikey=${API_KEY}`;
@@ -26,10 +26,50 @@ export const getItemsByIds = async (ids: string[]): Promise<FullItem[]> => {
 
 export const getSeasonFromTitle = async (title: string, season: number) => {
   const { data } = await axios.get(`${BASE_URL}&t=${title}&Season=${season}`);
-  return data as Season;
+  return {
+    title: data.Title,
+    seasonNumber: data.Season,
+    totalSeasons: data.totalSeasons,
+    episodes: data.Episodes,
+  } as Season;
 };
 
 export const getSeasonFromId = async (id: string, season: number) => {
   const { data } = await axios.get(`${BASE_URL}&i=${id}&Season=${season}`);
-  return data as Season;
+  return {
+    title: data.Title,
+    seasonNumber: data.Season,
+    totalSeasons: data.totalSeasons,
+    episodes: data.Episodes,
+  } as Season;
+};
+
+export const getFullSeriesFromId = async (id: string) => {
+    const { totalSeasons, title } = await getSeasonFromId(id, 1);
+    const seasonAmount = parseInt(totalSeasons, 10);
+    const seasonsPromises = [];
+    for (let i = 1; i <= seasonAmount; i++) {
+      seasonsPromises.push(getSeasonFromId(id, i));
+   }
+    const seasons = await Promise.all(seasonsPromises);
+    return {
+      title,
+      totalSeasons,
+      seasons,
+    } as FullSeries;
+};
+
+export const getFullSeriesFromTitle = async (title: string) => {
+  const { totalSeasons, title: seriesTitle } = await getSeasonFromTitle(title, 1);
+  const seasonAmount = parseInt(totalSeasons, 10);
+  const seasonsPromises = [];
+  for (let i = 1; i <= seasonAmount; i++) {
+    seasonsPromises.push(getSeasonFromTitle(title, i));
+ }
+  const seasons = await Promise.all(seasonsPromises);
+  return {
+    title: seriesTitle,
+    totalSeasons,
+    seasons,
+  } as FullSeries;
 };

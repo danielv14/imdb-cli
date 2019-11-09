@@ -30,18 +30,36 @@
       resultItds.map((id) => expect(ids.includes(id)).toEqual(true));
     });
   });
-  describe('getSeasonFromTitle', () => {
+  describe('getSeasonFromTitle()', () => {
     it('should get a specific season for a given title', async () => {
       const title = sanitizeQuery('Game of thrones');
       const season = await omdbApi.getSeasonFromTitle(title, 1);
-      expect(season.Season).toEqual('1');
+      expect(season.seasonNumber).toEqual('1');
     });
   });
-  describe('getSeasonFromId', () => {
+  describe('getSeasonFromId()', () => {
     it('should get a specific season for a given imdb id', async () => {
       const id = 'tt0944947';
       const season = await omdbApi.getSeasonFromId(id, 1);
-      expect(season.Season).toEqual('1');
+      expect(season.seasonNumber).toEqual('1');
+    });
+  });
+  describe('getAllSeasonsFromId()', () => {
+    it('should get full series for a given imdb id', async () => {
+      const id = 'tt0944947';
+      const series = await omdbApi.getFullSeriesFromId(id);
+      expect(series.title).toBeDefined();
+      expect(series.totalSeasons).toBeDefined();
+      expect(series.seasons.length).toBeGreaterThan(0);
+    });
+  });
+  describe('getAllSeasonsFromTitle()', () => {
+    it('should get full series for a given title', async () => {
+      const title = sanitizeQuery('game of thrones');
+      const series = await omdbApi.getFullSeriesFromTitle(title);
+      expect(series.title).toBe('Game of Thrones');
+      expect(series.totalSeasons).toBeDefined();
+      expect(series.seasons.length).toBeGreaterThan(0);
     });
   });
 });
