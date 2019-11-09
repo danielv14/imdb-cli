@@ -1,9 +1,27 @@
 const axios = require('axios');
 import { FullItem, Item, SearchResultType } from './types/searchResult';
 import { Season, Series } from './types/series';
+import { sanitizeQuery } from './utils';
 
 const API_KEY = process.env.API_KEY;
 const BASE_URL = `http://www.omdbapi.com?apikey=${API_KEY}`;
+
+const getNumberOfSeasons = (title: string, amount: number) => {
+  const seasonsPromises = [];
+  for (let i = 1; i <= amount; i++) {
+    seasonsPromises.push(getSeasonFromTitle(sanitizeQuery(title), i));
+ }
+  return seasonsPromises;
+};
+
+const formatSeason = (data: any): Season => {
+  return {
+    title: data.Title,
+    seasonNumber: data.Season,
+    totalSeasons: data.totalSeasons,
+    episodes: data.Episodes,
+  };
+};
 
 export const searchByQuery = async (query: string): Promise<Item[]> => {
   const { data } = await axios.get(`${BASE_URL}&s=${query}`);
@@ -27,47 +45,22 @@ export const getItemsByIds = async (ids: string[]): Promise<FullItem[]> => {
 
 export const getSeasonFromTitle = async (title: string, season: number) => {
   const { data } = await axios.get(`${BASE_URL}&t=${title}&Season=${season}`);
-  return {
-    title: data.Title,
-    seasonNumber: data.Season,
-    totalSeasons: data.totalSeasons,
-    episodes: data.Episodes,
-  } as Season;
+  return formatSeason(data);
 };
 
 export const getSeasonFromId = async (id: string, season: number) => {
   const { data } = await axios.get(`${BASE_URL}&i=${id}&Season=${season}`);
-  return {
-    title: data.Title,
-    seasonNumber: data.Season,
-    totalSeasons: data.totalSeasons,
-    episodes: data.Episodes,
-  } as Season;
+  return formatSeason(data);
 };
 
 export const getFullSeriesFromId = async (id: string) => {
-    const { totalSeasons, title } = await getSeasonFromId(id, 1);
-    const seasonAmount = parseInt(totalSeasons, 10);
-    const seasonsPromises = [];
-    for (let i = 1; i <= seasonAmount; i++) {
-      seasonsPromises.push(getSeasonFromId(id, i));
-   }
-    const seasons = await Promise.all(seasonsPromises);
-    return {
-      title,
-      totalSeasons,
-      seasons,
-    } as Series;
+  const { title } = await getSeasonFromId(id, 1);
+  return getFullSeriesFromTitle(title);
 };
 
 export const getFullSeriesFromTitle = async (title: string) => {
   const { totalSeasons, title: seriesTitle } = await getSeasonFromTitle(title, 1);
-  const seasonAmount = parseInt(totalSeasons, 10);
-  const seasonsPromises = [];
-  for (let i = 1; i <= seasonAmount; i++) {
-    seasonsPromises.push(getSeasonFromTitle(title, i));
- }
-  const seasons = await Promise.all(seasonsPromises);
+  const seasons = await Promise.all(getNumberOfSeasons(sanitizeQuery(title), parseInt(totalSeasons, 10)));
   return {
     title: seriesTitle,
     totalSeasons,
