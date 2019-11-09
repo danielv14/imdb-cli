@@ -30,30 +30,9 @@ export interface FullItem extends Item {
   Response: string;
 }
 
-export interface Episode {
-  Title: string;
-  Released: string;
-  Episode: string;
-  imdbRating: string;
-  imdbId: string;
-}
-
-export interface Season {
- title: string;
- seasonNumber: string;
- totalSeasons: string;
- episodes: Episode[];
-}
-
 export interface Rating {
   Source: string;
   Value: string;
-}
-
-export interface FullSeries {
-  title: string;
-  totalSeasons: string;
-  seasons: Season[];
 }
 
 export interface FormattedItem {

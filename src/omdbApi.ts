@@ -1,5 +1,6 @@
 const axios = require('axios');
-import { FullItem, FullSeries, Item, SearchResultType, Season } from './types/searchResult';
+import { FullItem, Item, SearchResultType } from './types/searchResult';
+import { Season, Series } from './types/series';
 
 const API_KEY = process.env.API_KEY;
 const BASE_URL = `http://www.omdbapi.com?apikey=${API_KEY}`;
@@ -56,7 +57,7 @@ export const getFullSeriesFromId = async (id: string) => {
       title,
       totalSeasons,
       seasons,
-    } as FullSeries;
+    } as Series;
 };
 
 export const getFullSeriesFromTitle = async (title: string) => {
@@ -71,5 +72,5 @@ export const getFullSeriesFromTitle = async (title: string) => {
     title: seriesTitle,
     totalSeasons,
     seasons,
-  } as FullSeries;
+  } as Series;
 };
