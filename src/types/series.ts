@@ -28,4 +28,3 @@ export interface SeriesAverageScore {
   Title: string;
   Seasons: SeasonAverageScore[];
 }
-
