@@ -9,7 +9,7 @@ const BASE_URL = `http://www.omdbapi.com?apikey=${API_KEY}`;
 const getNumberOfSeasons = (title: string, amount: number) => {
   const seasonsPromises = [];
   for (let i = 1; i <= amount; i++) {
-    seasonsPromises.push(getSeasonFromTitle(sanitizeQuery(title), i));
+    seasonsPromises.push(getSeasonFromTitle(title, i));
  }
   return seasonsPromises;
 };
@@ -60,7 +60,7 @@ export const getFullSeriesFromId = async (id: string) => {
 
 export const getFullSeriesFromTitle = async (title: string) => {
   const { totalSeasons, title: seriesTitle } = await getSeasonFromTitle(title, 1);
-  const seasons = await Promise.all(getNumberOfSeasons(sanitizeQuery(title), parseInt(totalSeasons, 10)));
+  const seasons = await Promise.all(getNumberOfSeasons(sanitizeQuery(seriesTitle), parseInt(totalSeasons, 10)));
   return {
     title: seriesTitle,
     totalSeasons,

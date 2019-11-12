@@ -51,6 +51,8 @@
       expect(series.title).toBeDefined();
       expect(series.totalSeasons).toBeDefined();
       expect(series.seasons.length).toBeGreaterThan(0);
+      expect(series.seasons[0].title).toBeDefined();
+      expect(series.seasons[0].episodes[0].imdbRating).toBeDefined();
     });
   });
   describe('getAllSeasonsFromTitle()', () => {
@@ -60,6 +62,8 @@
       expect(series.title).toBe('Game of Thrones');
       expect(series.totalSeasons).toBeDefined();
       expect(series.seasons.length).toBeGreaterThan(0);
+      expect(series.seasons[0].title).toBeDefined();
+      expect(series.seasons[0].episodes[0].imdbRating).toBeDefined();
     });
   });
 });
