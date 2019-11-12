@@ -1,6 +1,6 @@
 import { Episode, Season, Series } from '../types/series';
 
-export const EPISODES = [
+export const EPISODES_S01 = [
   {
     Title: 'Series',
     Released: '',
@@ -48,11 +48,11 @@ export const EPISODES_S02 = [
   },
 ] as Episode[];
 
-export const SEASON = {
+export const SEASON1 = {
   title: 'game of thrones',
   seasonNumber: 'Season 1',
   totalSeasons: '8',
-  episodes: EPISODES,
+  episodes: EPISODES_S01,
 } as Season;
 
 export const SEASON2 = {
@@ -63,7 +63,7 @@ export const SEASON2 = {
 } as Season;
 
 export const SERIES = {
-  title: SEASON.title,
-  totalSeasons: SEASON.totalSeasons,
-  seasons: [SEASON, SEASON2],
+  title: SEASON1.title,
+  totalSeasons: SEASON1.totalSeasons,
+  seasons: [SEASON1, SEASON2],
 } as Series;
