@@ -18,3 +18,14 @@ export interface Series {
   totalSeasons: string;
   seasons: Season[];
 }
+
+export interface SeasonAverageScore {
+  SeasonNumber: string;
+  AverageScore: number;
+}
+
+export interface SeriesAverageScore {
+  Title: string;
+  Seasons: SeasonAverageScore[];
+}
+
