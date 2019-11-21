@@ -25,12 +25,12 @@ export const sortByColumn = ({ items, column, order }: SortObject) => orderBy(it
  */
 export const truncate = (text: string, limit: number): string => text ?  `${text.substring(0, limit)}...` : '';
 
-export const calculateAverage = (arr: number[]) => {
+export const calculateAverage = (arr: number[]): number => {
   const average = arr.reduce((a, b) => a + b, 0) / arr.length;
   return parseFloat(average.toFixed(1));
 };
 
-export const calculateEpisodeAverageScore = (episodes: Episode[]) => {
+export const calculateEpisodeAverageScore = (episodes: Episode[]): number => {
   const scores = episodes.map((episode) => parseFloat(episode.imdbRating));
   return calculateAverage(scores);
 };
