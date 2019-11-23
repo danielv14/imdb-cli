@@ -6,6 +6,7 @@ const figlet = require('figlet');
 
 import { IMDbProperties } from './types/imdb';
 import {
+  FormattedAverageSeason,
   FormattedItem,
   FullItem,
   Item,
@@ -15,8 +16,9 @@ import {
   SortOrder,
 } from './types/searchResult';
 
-import { getItemById, getItemsByIds, searchByQuery, searchByQueryAndType } from './omdbApi';
-import { sanitizeQuery, sortByColumn, truncate } from './utils';
+import { getFullSeriesFromTitle, getItemById, getItemsByIds, searchByQuery, searchByQueryAndType } from './omdbApi';
+import { SeriesAverageScore } from './types/series';
+import { calculateAverage, calculateSeriesAverageScore, sanitizeQuery, sortByColumn, truncate } from './utils';
 
 /**
  * Class to  handle scraping of IMDb
@@ -169,6 +171,18 @@ class IMDb implements IMDbProperties {
     return result;
   }
 
+  public getFormattedSeriesScore(series: SeriesAverageScore): FormattedAverageSeason[] {
+    const averageSeasonScore = calculateAverage(series.Seasons.map((season) => season.AverageScore));
+    const formattedSeriesScore = series.Seasons.map((season) => {
+      const color = this.scoreColor(season.AverageScore, averageSeasonScore);
+      return {
+        [`${series.Title} season`]: `Season ${season.SeasonNumber}`,
+        'IMDb score': color(season.AverageScore),
+      };
+    });
+    return formattedSeriesScore;
+  }
+
   /**
    * Perform search for movies/series
    */
@@ -192,6 +206,34 @@ class IMDb implements IMDbProperties {
       spinner.stop();
       this.renderSearchResults(searchResult);
 
+    } catch (e) {
+      spinner.stop();
+      console.log(`Program exit with error: ${chalk.red(e)}`);
+    }
+  }
+
+  public scoreColor(score: number, average: number) {
+    let diff;
+    const diffThreshold = 0.5;
+    if (score < average) {
+      diff = average - score;
+      return diff > diffThreshold ? chalk.red : chalk.white;
+    }
+    diff = score - average;
+    return diff > diffThreshold ? chalk.green : chalk.white;
+  }
+
+  public async seriesInfo(): Promise<void> {
+    const spinner = ora('Searching IMDb for series to calculate average season score. Please wait...').start();
+    try {
+      const fullSeries = await getFullSeriesFromTitle(this.query);
+      if (!fullSeries || !fullSeries.seasons.length) {
+        console.log(chalk.red(`\nCould not find a series matching '${this.query}'. Please try again.`));
+        process.exit();
+      }
+      const seriesAverage = calculateSeriesAverageScore(fullSeries);
+      spinner.stop();
+      console.table(this.getFormattedSeriesScore(seriesAverage));
     } catch (e) {
       spinner.stop();
       console.log(`Program exit with error: ${chalk.red(e)}`);
