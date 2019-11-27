@@ -24,6 +24,9 @@ program
   .option('-m, --movies', 'Search by movies only. Cannot be used alongside \'series\' parameter')
   .option('-s --series', 'Search by series only. Cannot be used alongside \'movie\' parameter')
   .option('-o, --order-by [column]', 'Sort the search result by a column')
+  .option('-i, --info',
+  'Get averege season score for a series. Use this flag alongside --title flag. Will only work for series.',
+  )
   .parse(process.argv);
 
 if (program.movies && program.series) {
@@ -55,7 +58,11 @@ if (program.title) {
     sortColumn: program.orderBy,
     searchByType: IMDb.determineType({ movies: program.movies, series: program.series }),
   });
-  imdbInstance.search();
+  if (program.info) {
+    imdbInstance.seriesInfo();
+  } else {
+    imdbInstance.search();
+  }
 } else {
   // prompt the user for a search string
   inquirer.prompt(question).then((answer: any) => {

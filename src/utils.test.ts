@@ -53,12 +53,15 @@ describe('Utils functions', () => {
   });
   describe('calculateEpisodeAverageScore()', () => {
     it('should calulate average score based on episodes', () => {
-      expect(utils.calculateEpisodeAverageScore(seriesMock.EPISODES_S01)).toEqual(5.3);
+      expect(utils.calculateEpisodeAverageScore(seriesMock.EPISODES_S01)).toEqual(seriesMock.SCORE_S01);
+    });
+    it('should exluce episodes which has no valid score', () => {
+      expect(utils.calculateEpisodeAverageScore(seriesMock.EPISODES_S01_INVALID)).toEqual(seriesMock.SCORE_S01);
     });
   });
   describe('calculateSeasonAverageScore()', () => {
     it('should calculate average score based on a season', () => {
-      expect(utils.calculateSeasonAverageScore(seriesMock.SEASON1).AverageScore).toEqual(5.3);
+      expect(utils.calculateSeasonAverageScore(seriesMock.SEASON1).AverageScore).toEqual(seriesMock.SCORE_S01);
       expect(utils.calculateSeasonAverageScore(seriesMock.SEASON1).SeasonNumber)
       .toEqual(seriesMock.SEASON1.seasonNumber);
     });
@@ -67,8 +70,8 @@ describe('Utils functions', () => {
     it('should calculate average for each season in an entire series', () => {
       const seriesAverage = utils.calculateSeriesAverageScore(seriesMock.SERIES);
       expect(seriesAverage.Title).toEqual(seriesMock.SERIES.title);
-      expect(seriesAverage.Seasons[0].AverageScore).toEqual(5.3);
-      expect(seriesAverage.Seasons[1].AverageScore).toEqual(4.6);
+      expect(seriesAverage.Seasons[0].AverageScore).toEqual(seriesMock.SCORE_S01);
+      expect(seriesAverage.Seasons[1].AverageScore).toEqual(seriesMock.SCORE_S02);
     });
     it('should calculate average score for series taken from API', async () => {
       const series = await getFullSeriesFromTitle(utils.sanitizeQuery('game of thrones'));

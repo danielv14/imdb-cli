@@ -1,5 +1,8 @@
 import { Episode, Season, Series } from '../types/series';
 
+export const SCORE_S01 = 5.3;
+export const SCORE_S02 = 4.6;
+
 export const EPISODES_S01 = [
   {
     Title: 'Series',
@@ -47,6 +50,14 @@ export const EPISODES_S02 = [
     imdbId: '1234',
   },
 ] as Episode[];
+
+export const EPISODES_S01_INVALID = [...EPISODES_S01, {
+  Title: 'Series',
+  Released: '',
+  Episode: 'Episode 1',
+  imdbRating: 'N/A',
+  imdbId: '1234',
+}];
 
 export const SEASON1 = {
   title: 'game of thrones',
