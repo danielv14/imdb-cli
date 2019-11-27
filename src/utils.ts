@@ -31,7 +31,9 @@ export const calculateAverage = (arr: number[]): number => {
 };
 
 export const calculateEpisodeAverageScore = (episodes: Episode[]): number => {
-  const scores = episodes.map((episode) => parseFloat(episode.imdbRating));
+  const scores = episodes
+    .map((episode) => parseFloat(episode.imdbRating))
+    .filter((rating) => !isNaN(rating));
   return calculateAverage(scores);
 };
 
