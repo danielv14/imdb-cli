@@ -59,6 +59,14 @@ export const EPISODES_S01_INVALID = [...EPISODES_S01, {
   imdbId: '1234',
 }];
 
+export const EPISODE_NOT_RELEASED = {
+  Title: 'Series',
+  Released: 'N/A',
+  Episode: 'Episode 1',
+  imdbRating: 'N/A',
+  imdbId: '1234',
+};
+
 export const SEASON1 = {
   title: 'game of thrones',
   seasonNumber: 'Season 1',
