@@ -1,6 +1,7 @@
 import * as seriesMock from './mock/seriesMock';
 import { getFullSeriesFromTitle } from './omdbApi';
 import { SearchResultSortColumn, SearchResultSortOrder, SearchResultType, SortOrder } from './types/searchResult';
+import { Season } from './types/series';
 import * as utils from './utils';
 
 describe('Utils functions', () => {
@@ -65,6 +66,10 @@ describe('Utils functions', () => {
       expect(utils.calculateSeasonAverageScore(seriesMock.SEASON1).SeasonNumber)
       .toEqual(seriesMock.SEASON1.seasonNumber);
     });
+    it('should handle seasons not yet released', () => {
+      const invalidSeason = { ...seriesMock.SEASON1, episodes: [seriesMock.EPISODE_NOT_RELEASED] } as Season;
+      expect(utils.calculateSeasonAverageScore(invalidSeason).AverageScore).toEqual(utils.NOT_RELEASED_TEXT);
+    });
   });
   describe('calculateSeriesAverageScore()', () => {
     it('should calculate average for each season in an entire series', () => {
@@ -79,6 +84,19 @@ describe('Utils functions', () => {
       expect(seriesAverage.Title).toBeDefined();
       expect(seriesAverage.Seasons.length).toBeGreaterThan(1);
       seriesAverage.Seasons.map((season) => expect(season.AverageScore).toBeDefined());
+    });
+  });
+  describe('hasSeasonStarted', () => {
+    it('should return true if one or more episode is released', () => {
+      const season = {
+        ...seriesMock.SEASON1,
+        episodes: [...seriesMock.SEASON1.episodes, seriesMock.EPISODE_NOT_RELEASED],
+      };
+      expect(utils.hasSeasonStarted(season)).toBeTruthy();
+    });
+    it('should return false if all episodes has not released yet', () => {
+      const season = { ...seriesMock.SEASON1, episodes: [seriesMock.EPISODE_NOT_RELEASED] } as Season;
+      expect(utils.hasSeasonStarted(season)).toBeFalsy();
     });
   });
 });

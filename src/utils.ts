@@ -2,6 +2,9 @@ import orderBy from 'lodash/orderBy';
 import { SortObject } from './types/searchResult';
 import { Episode, Season, SeasonAverageScore, Series, SeriesAverageScore } from './types/series';
 
+const NOT_RELEASED = 'N/A';
+export const NOT_RELEASED_TEXT = 'Not yet released';
+
 /**
  * Encode a string as a URI component
  * @param {String} query to encode
@@ -38,10 +41,9 @@ export const calculateEpisodeAverageScore = (episodes: Episode[]): number => {
 };
 
 export const calculateSeasonAverageScore = (season: Season) => {
-  const seasonAverage = calculateEpisodeAverageScore(season.episodes);
   return {
     SeasonNumber: season.seasonNumber,
-    AverageScore: seasonAverage,
+    AverageScore: hasSeasonStarted(season) ? calculateEpisodeAverageScore(season.episodes) : NOT_RELEASED_TEXT,
   } as SeasonAverageScore;
 };
 
@@ -50,4 +52,9 @@ export const calculateSeriesAverageScore = (series: Series) => {
     Title: series.title,
     Seasons: series.seasons.map((season) => calculateSeasonAverageScore(season)),
   } as SeriesAverageScore;
+};
+
+export const hasSeasonStarted = (season: Season): boolean => {
+  const airedEpisodes = season.episodes.filter((episode) => episode.Released !== NOT_RELEASED );
+  return !!airedEpisodes.length;
 };
