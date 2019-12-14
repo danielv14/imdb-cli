@@ -43,6 +43,11 @@ export interface FormattedItem {
   'IMDb ID': string;
 }
 
+export interface FormattedAverageSeason {
+  [key: string]: string;
+  'IMDb score': string;
+}
+
 export enum SearchResultType {
   Movies = 'movie',
   Series = 'series',

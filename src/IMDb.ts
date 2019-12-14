@@ -3,20 +3,22 @@ const ora = require('ora');
 const tab = require('table-master');
 const chalk = require('chalk');
 const figlet = require('figlet');
-const axios = require('axios');
-const { sanitizeQuery, sortByColumn } = require('./utils');
 
 import { IMDbProperties } from './types/imdb';
 import {
+  FormattedAverageSeason,
   FormattedItem,
   FullItem,
   Item,
   SearchResultSortColumn,
   SearchResultSortOrder,
   SearchResultType,
-  SortObject,
   SortOrder,
 } from './types/searchResult';
+
+import { getFullSeriesFromTitle, getItemById, getItemsByIds, searchByQuery, searchByQueryAndType } from './omdbApi';
+import { SeriesAverageScore } from './types/series';
+import { calculateAverage, calculateSeriesAverageScore, sanitizeQuery, sortByColumn, truncate } from './utils';
 
 /**
  * Class to  handle scraping of IMDb
@@ -51,14 +53,11 @@ class IMDb implements IMDbProperties {
     return SearchResultType.All;
   }
   public query: string;
-  public originalQuery: string;
-  public results: FormattedItem[];
   public outputColor: (text: string) => string;
   public showPlot: boolean;
   public searchByType: SearchResultType;
   public limitPlot: number;
   public sortColumn: SearchResultSortColumn;
-  public baseUrl: string;
   /**
    * Creates an instance of IMDb.
    * @param {string} query - search query
@@ -74,49 +73,40 @@ class IMDb implements IMDbProperties {
     limitPlot = 40,
     sortColumn = SearchResultSortColumn.None,
   }) {
-    this.query = sanitizeQuery(query);
-    this.originalQuery = query;
-    this.results = [];
+    this.query = query;
     this.outputColor = chalk.hex('#f3ce13');
     this.showPlot = showPlot;
     this.searchByType = searchByType;
     this.limitPlot = limitPlot;
     this.sortColumn = sortColumn;
-
-    this.baseUrl = `http://www.omdbapi.com?apikey=${this.getAPIKey()}`;
-  }
-
-  /**
-   * Push to results array
-   * @param {Array} results Array of result objects to later display
-   */
-  public createSearchResult(results: any[]): void {
-    results.forEach((result) => this.results.push(result));
   }
 
   /**
    * Render either a table with search results
    * or a message of no search results were found
    */
-  public renderSearchResults(): void {
-    if (Object.keys(this.results).length === 0) {
-      console.log(chalk.red(`\nCould not find any search results for '${this.originalQuery}'. Please try again.`));
-    } else if (this.availableColumnsToSort().includes(this.sortColumn)) {
-      console.table(this.getSortedSearchResult());
-    } else {
-      console.table(this.results);
+  public renderSearchResults(result?: FormattedItem[]): void {
+    if (!result) {
+      console.log(chalk.red(`\nCould not find any search results for '${this.query}'. Please try again.`));
+      return;
     }
+    if (this.availableColumnsToSort.includes(this.sortColumn)) {
+      console.table(this.getSortedSearchResult(result));
+      return;
+    }
+    console.table(result);
+    return;
   }
 
   /**
    * Get a sorted array of the search result
    */
-  public getSortedSearchResult(): SortObject {
+  public getSortedSearchResult(result: FormattedItem[]) {
     const orderToSortBy = this.sortColumn === SearchResultSortColumn.Year ?
     SearchResultSortOrder.Descending
     : SearchResultSortOrder.Ascending;
     return sortByColumn({
-      items: this.results,
+      items: result,
       column: SortOrder[this.sortColumn],
       order: orderToSortBy,
     });
@@ -126,61 +116,40 @@ class IMDb implements IMDbProperties {
    * Get available values to sort by
    * @returns {Array}
    */
-  public availableColumnsToSort(): string[] {
+  get availableColumnsToSort(): SearchResultSortColumn[] {
     return [SearchResultSortColumn.Year, SearchResultSortColumn.Title];
   }
 
   /**
-   * Get the api key to use for omdb api
-   * @returns {String}
-   */
-  public getAPIKey(): string {
-    return process.env.API_KEY as string;
-  }
-
-  /**
-   * Get search result promise by query
+   * Get search result promise by query.
+   * Method will sanitize the input query
    * @param {String} query
    * @returns {Promise}
    */
   public async getSearchResult(query: string): Promise<Item[]> {
-    const url = `${this.baseUrl}&s=${query}`;
+    const sanitizedQuery = sanitizeQuery(query);
     if (this.searchByType === SearchResultType.All) {
-      const { data } = await axios.get(url);
-      return data.Search;
+      return searchByQuery(sanitizedQuery);
     }
-    const {data: dataBySearchType} = await axios.get(`${url}&type=${this.searchByType}`);
-    return dataBySearchType.Search;
+    return searchByQueryAndType(sanitizedQuery, this.searchByType);
   }
 
   /**
-   * Get FullSearchResult for a given imdb id
+   * Get item for a given imdb id
    * @param {String} imdbId
    */
   public async getItemByIMDbId(imdbId: string): Promise<FullItem> {
-    const { data } = await axios.get(`${this.baseUrl}&i=${imdbId}`);
-    return data as FullItem;
+    const item = await getItemById(imdbId);
+    return item;
   }
 
   /**
-   * Get Multiple FullSearchResult for a given array of imdb ids
+   * Get multiple item for a given array of imdb ids
    * @param {Array} imdbId
    */
   public async getFullItemsByIMDBIds(imdbIds: string[]): Promise<FullItem[]> {
-    const items = await Promise.all(imdbIds.map((id: string) => this.getItemByIMDbId(id)));
+    const items = await getItemsByIds(imdbIds);
     return items as FullItem[];
-  }
-
-  /**
-   *
-   * @param {String} text string to truncate
-   * @param {Integer} [limit=40] Limit truncation to a specific amount of chars
-   */
-  public getTruncatedText( text: string, limit: number ): string {
-    if (!text) {
-      return '';
-    }
-    return `${text.substring(0, limit)}...`;
   }
 
   /**
@@ -197,9 +166,21 @@ class IMDb implements IMDbProperties {
       'IMDb ID': this.outputColor(input.imdbID),
     };
     if (includePlot && input.Plot) {
-      result.Plot = this.getTruncatedText(input.Plot, this.limitPlot);
+      result.Plot = truncate(input.Plot, this.limitPlot);
     }
     return result;
+  }
+
+  public getFormattedSeriesScore(series: SeriesAverageScore): FormattedAverageSeason[] {
+    const averageSeasonScore = calculateAverage(series.Seasons.map((season) => season.AverageScore));
+    const formattedSeriesScore = series.Seasons.map((season) => {
+      const color = this.scoreColor(season.AverageScore, averageSeasonScore);
+      return {
+        [`${series.Title} season`]: `Season ${season.SeasonNumber}`,
+        'IMDb score': color(season.AverageScore),
+      };
+    });
+    return formattedSeriesScore;
   }
 
   /**
@@ -213,19 +194,46 @@ class IMDb implements IMDbProperties {
         this.renderSearchResults();
         process.exit();
       }
+      let searchResult;
       if (this.showPlot) {
         const results = await this.getFullItemsByIMDBIds(itemsByQuery.map((res) => res.imdbID));
-        const searchResult = results.map(
+        searchResult = results.map(
           (result: Item) => this.getFormattedSearchResult(result, this.showPlot),
-        );
-        this.createSearchResult(searchResult);
+        ) as FormattedItem[];
       } else {
-        const searchResult = itemsByQuery.map((result: Item) => this.getFormattedSearchResult(result));
-        this.createSearchResult(searchResult);
+        searchResult = itemsByQuery.map((result: Item) => this.getFormattedSearchResult(result));
       }
       spinner.stop();
-      this.renderSearchResults();
+      this.renderSearchResults(searchResult);
 
+    } catch (e) {
+      spinner.stop();
+      console.log(`Program exit with error: ${chalk.red(e)}`);
+    }
+  }
+
+  public scoreColor(score: number, average: number) {
+    let diff;
+    const diffThreshold = 0.5;
+    if (score < average) {
+      diff = average - score;
+      return diff > diffThreshold ? chalk.red : chalk.white;
+    }
+    diff = score - average;
+    return diff > diffThreshold ? chalk.green : chalk.white;
+  }
+
+  public async seriesInfo(): Promise<void> {
+    const spinner = ora('Searching IMDb for series to calculate average season score. Please wait...').start();
+    try {
+      const fullSeries = await getFullSeriesFromTitle(this.query);
+      if (!fullSeries || !fullSeries.seasons.length) {
+        console.log(chalk.red(`\nCould not find a series matching '${this.query}'. Please try again.`));
+        process.exit();
+      }
+      const seriesAverage = calculateSeriesAverageScore(fullSeries);
+      spinner.stop();
+      console.table(this.getFormattedSeriesScore(seriesAverage));
     } catch (e) {
       spinner.stop();
       console.log(`Program exit with error: ${chalk.red(e)}`);
