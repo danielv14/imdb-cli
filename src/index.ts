@@ -5,8 +5,8 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const clear = require('clear');
 const inquirer = require('inquirer');
 const program = require('commander');
-const IMDb = require('./IMDb').default;
 const pkg = require('../package');
+import { IMDb } from './cli/IMDb';
 import { processProgramArgs } from './cli/programArgs';
 import { inquirerPromptQuestion } from './cli/settings/inquirerPromptQuestion';
 

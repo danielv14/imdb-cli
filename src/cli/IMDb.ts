@@ -26,7 +26,7 @@ import * as renderer from './renderer/renderer';
  *
  * @class IMDb
  */
-class IMDb implements IMDbProperties {
+export class IMDb implements IMDbProperties {
 
   /**
    * Static method to display IMDB header for the CLI
@@ -244,5 +244,3 @@ class IMDb implements IMDbProperties {
     }
   }
 }
-
-export default IMDb;
