@@ -1,6 +1,6 @@
 import orderBy from 'lodash/orderBy';
-import { SortObject } from './types/searchResult';
-import { Episode, Season, SeasonAverageScore, Series, SeriesAverageScore } from './types/series';
+import { SortObject } from '../types/searchResult';
+import { Episode, Season, SeasonAverageScore, Series, SeriesAverageScore } from '../types/series';
 
 const NOT_RELEASED = 'N/A';
 export const NOT_RELEASED_TEXT = 'Not yet released';

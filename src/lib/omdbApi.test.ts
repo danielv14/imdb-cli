@@ -1,8 +1,8 @@
-  import * as omdbApi from './omdbApi';
-  import { SearchResultType } from './types/searchResult';
-  import { sanitizeQuery } from './utils';
+import { SearchResultType } from '../types/searchResult';
+import * as omdbApi from './omdbApi';
+import { sanitizeQuery } from './utils';
 
-  describe('OMDb API Functions', () => {
+describe('OMDb API Functions', () => {
   describe('searchByQuery()', () => {
     it('should get search result for a given query', async () => {
       const items = await omdbApi.searchByQuery(sanitizeQuery('Harry potter'));
