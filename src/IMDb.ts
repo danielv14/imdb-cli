@@ -1,9 +1,7 @@
 const ora = require('ora');
-// eslint-disable-next-line no-unused-vars
-const tab = require('table-master');
-const chalk = require('chalk');
-const figlet = require('figlet');
-
+import * as renderer from './cli/renderer/renderer';
+import { getFullSeriesFromTitle, getItemById, getItemsByIds, searchByQuery, searchByQueryAndType } from './lib/omdbApi';
+import { calculateAverage, calculateSeriesAverageScore, sanitizeQuery, sortByColumn, truncate } from './lib/utils';
 import { IMDbProperties } from './types/imdb';
 import {
   FormattedAverageSeason,
@@ -15,10 +13,7 @@ import {
   SearchResultType,
   SortOrder,
 } from './types/searchResult';
-
-import { getFullSeriesFromTitle, getItemById, getItemsByIds, searchByQuery, searchByQueryAndType } from './omdbApi';
 import { SeriesAverageScore } from './types/series';
-import { calculateAverage, calculateSeriesAverageScore, sanitizeQuery, sortByColumn, truncate } from './utils';
 
 /**
  * Class to  handle scraping of IMDb
@@ -33,8 +28,7 @@ class IMDb implements IMDbProperties {
    * @static
    */
   public static displayHeader() {
-    const imdbColor = chalk.hex('#f3ce13');
-    console.log(imdbColor(figlet.textSync('IMDb CLI')));
+    renderer.renderCLIHeader('IMDb CLI', '#f3ce13');
   }
 
   /**
@@ -74,7 +68,7 @@ class IMDb implements IMDbProperties {
     sortColumn = SearchResultSortColumn.None,
   }) {
     this.query = query;
-    this.outputColor = chalk.hex('#f3ce13');
+    this.outputColor = renderer.hexColor('#f3ce13');
     this.showPlot = showPlot;
     this.searchByType = searchByType;
     this.limitPlot = limitPlot;
@@ -87,14 +81,14 @@ class IMDb implements IMDbProperties {
    */
   public renderSearchResults(result?: FormattedItem[]): void {
     if (!result) {
-      console.log(chalk.red(`\nCould not find any search results for '${this.query}'. Please try again.`));
+      renderer.renderErrorString(`\nCould not find any search results for '${this.query}'. Please try again.`);
       return;
     }
     if (this.availableColumnsToSort.includes(this.sortColumn)) {
-      console.table(this.getSortedSearchResult(result));
+      renderer.renderTable(this.getSortedSearchResult(result));
       return;
     }
-    console.table(result);
+    renderer.renderTable(result);
     return;
   }
 
@@ -177,7 +171,7 @@ class IMDb implements IMDbProperties {
       const color = this.scoreColor(season.AverageScore, averageSeasonScore);
       return {
         [`${series.Title} season`]: `Season ${season.SeasonNumber}`,
-        'IMDb score': color(season.AverageScore),
+        'IMDb score': color(season.AverageScore + ''),
       };
     });
     return formattedSeriesScore;
@@ -208,7 +202,7 @@ class IMDb implements IMDbProperties {
 
     } catch (e) {
       spinner.stop();
-      console.log(`Program exit with error: ${chalk.red(e)}`);
+      renderer.renderErrorInfo('Program exit with error', e);
     }
   }
 
@@ -217,10 +211,14 @@ class IMDb implements IMDbProperties {
     const diffThreshold = 0.5;
     if (score < average) {
       diff = average - score;
-      return diff > diffThreshold ? chalk.red : chalk.white;
+      return diff > diffThreshold ?
+        renderer.getRenderColor(renderer.RenderColor.Error) :
+        renderer.getRenderColor(renderer.RenderColor.Neutral);
     }
     diff = score - average;
-    return diff > diffThreshold ? chalk.green : chalk.white;
+    return diff > diffThreshold ?
+      renderer.getRenderColor(renderer.RenderColor.Success) :
+      renderer.getRenderColor(renderer.RenderColor.Neutral);
   }
 
   public async seriesInfo(): Promise<void> {
@@ -228,15 +226,15 @@ class IMDb implements IMDbProperties {
     try {
       const fullSeries = await getFullSeriesFromTitle(this.query);
       if (!fullSeries || !fullSeries.seasons.length) {
-        console.log(chalk.red(`\nCould not find a series matching '${this.query}'. Please try again.`));
+        renderer.renderErrorString(`\nCould not find a series matching '${this.query}'. Please try again.`);
         process.exit();
       }
       const seriesAverage = calculateSeriesAverageScore(fullSeries);
       spinner.stop();
-      console.table(this.getFormattedSeriesScore(seriesAverage));
+      renderer.renderTable(this.getFormattedSeriesScore(seriesAverage));
     } catch (e) {
       spinner.stop();
-      console.log(`Program exit with error: ${chalk.red(e)}`);
+      renderer.renderErrorInfo('Program exit with error', e);
     }
   }
 }
