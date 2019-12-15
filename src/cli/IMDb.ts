@@ -65,7 +65,7 @@ export class IMDb implements IMDbProperties {
     sortColumn = SearchResultSortColumn.None,
   }) {
     this.query = query;
-    this.outputColor = renderer.hexColor('#f3ce13');
+    this.outputColor = renderer.hexColor(renderer.CLI_COLOR);
     this.showPlot = showPlot;
     this.searchByType = searchByType;
     this.limitPlot = limitPlot;

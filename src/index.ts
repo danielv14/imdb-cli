@@ -8,7 +8,7 @@ const program = require('commander');
 const pkg = require('../package');
 import { IMDb } from './cli/IMDb';
 import { processProgramArgs } from './cli/programArgs';
-import { renderCLIHeader } from './cli/renderer/renderer';
+import { CLI_COLOR, renderCLIHeader } from './cli/renderer/renderer';
 import { inquirerPromptQuestion } from './cli/settings/inquirerPromptQuestion';
 
 processProgramArgs(program);
@@ -17,7 +17,7 @@ processProgramArgs(program);
 clear();
 
 // display colorful IMDb header
-renderCLIHeader('IMDb CLI', '#f3ce13');
+renderCLIHeader('IMDb CLI', CLI_COLOR );
 
 const imdbInstance = new IMDb({
   showPlot: !!program.plot,

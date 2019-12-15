@@ -3,6 +3,8 @@ import figlet from 'figlet';
 // eslint-disable-next-line no-unused-vars
 const tab = require('table-master');
 
+export const CLI_COLOR = '#f3ce13';
+
 export enum RenderColor {
   Error = 'error',
   Neutral = 'neutral',
