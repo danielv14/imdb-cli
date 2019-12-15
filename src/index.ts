@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const path = require('path');
+import path from 'path';
 // set path of dotenv to make the CLI gather .env file when called from outside project root folder
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const clear = require('clear');
