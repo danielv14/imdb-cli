@@ -30,6 +30,7 @@
     "table-master": "^1.0.3"
   },
   "devDependencies": {
+    "@types/clear": "^0.1.0",
     "@types/figlet": "^1.2.0",
     "@types/inquirer": "^6.5.0",
     "@types/jest": "^24.0.15",
