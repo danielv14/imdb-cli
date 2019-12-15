@@ -1,8 +1,13 @@
 const ora = require('ora');
-import * as renderer from './cli/renderer/renderer';
-import { getFullSeriesFromTitle, getItemById, getItemsByIds, searchByQuery, searchByQueryAndType } from './lib/omdbApi';
-import { calculateAverage, calculateSeriesAverageScore, sanitizeQuery, sortByColumn, truncate } from './lib/utils';
-import { IMDbProperties } from './types/imdb';
+import {
+  getFullSeriesFromTitle,
+  getItemById,
+  getItemsByIds,
+  searchByQuery,
+  searchByQueryAndType,
+} from '../lib/omdbApi';
+import { calculateAverage, calculateSeriesAverageScore, sanitizeQuery, sortByColumn, truncate } from '../lib/utils';
+import { IMDbProperties } from '../types/imdb';
 import {
   FormattedAverageSeason,
   FormattedItem,
@@ -12,8 +17,9 @@ import {
   SearchResultSortOrder,
   SearchResultType,
   SortOrder,
-} from './types/searchResult';
-import { SeriesAverageScore } from './types/series';
+} from '../types/searchResult';
+import { SeriesAverageScore } from '../types/series';
+import * as renderer from './renderer/renderer';
 
 /**
  * Class to  handle scraping of IMDb
