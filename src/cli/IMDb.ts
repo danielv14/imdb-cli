@@ -29,15 +29,6 @@ import * as renderer from './renderer/renderer';
 export class IMDb implements IMDbProperties {
 
   /**
-   * Static method to display IMDB header for the CLI
-   *
-   * @static
-   */
-  public static displayHeader() {
-    renderer.renderCLIHeader('IMDb CLI', '#f3ce13');
-  }
-
-  /**
    * Static method to determine type, i.e movies or series is to be used when creating the IMDb class
    * @param {Boolean} movies
    * @param {Boolean} series
