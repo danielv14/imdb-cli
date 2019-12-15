@@ -7,42 +7,10 @@ const inquirer = require('inquirer');
 const program = require('commander');
 const IMDb = require('./IMDb').default;
 const pkg = require('../package');
+import { processProgramArgs } from './cli/programArgs';
+import { inquirerPromptQuestion } from './cli/settings/inquirerPromptQuestion';
 
-const inputError = 'Please enter a query to search for...';
-
-program
-  .version(pkg.version, '-v --version')
-  .option('-p, --plot', 'Show plot in search result')
-  .option(
-    '-l, --limit-plot [number]',
-    'Limit the amount of characters to be displayed for plot text. If omitted a default amount will be used',
-  )
-  .option(
-    '-t, --title [title]',
-    'Search by a specific title. If omitted the program will prompt you for a title to search for',
-  )
-  .option('-m, --movies', 'Search by movies only. Cannot be used alongside \'series\' parameter')
-  .option('-s --series', 'Search by series only. Cannot be used alongside \'movie\' parameter')
-  .option('-o, --order-by [column]', 'Sort the search result by a column')
-  .option('-i, --info',
-  'Get averege season score for a series. Use this flag alongside --title flag. Will only work for series.',
-  )
-  .parse(process.argv);
-
-if (program.movies && program.series) {
-  console.log('Cannot use both \'movie\' and \'series\' parameter together.');
-  process.exit();
-}
-
-// setup of question
-const question = [
-  {
-    type: 'input',
-    name: 'searchString',
-    message: 'What do you want to search for?\n',
-    validate: (value: string) => (value.length ? true : inputError),
-  },
-];
+processProgramArgs(program);
 
 // clear the terminal window
 clear();
@@ -65,7 +33,7 @@ if (program.title) {
   }
 } else {
   // prompt the user for a search string
-  inquirer.prompt(question).then((answer: any) => {
+  inquirer.prompt(inquirerPromptQuestion).then((answer: any) => {
     const imdbInstance = new IMDb({
       query: answer.searchString,
       showPlot: !!program.plot,
