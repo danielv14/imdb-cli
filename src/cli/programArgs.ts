@@ -20,7 +20,6 @@ export const processProgramArgs = (cliProgram: program.CommanderStatic) => {
 
 const validateArgs = (cliProgram: program.CommanderStatic) => {
   if (cliProgram.movies && cliProgram.series) {
-    // Use a renderer function that renders chalk.red console.log
     renderErrorString(ERROR_MOVIE_AND_SERIES_ARGS);
     process.exit();
   }
