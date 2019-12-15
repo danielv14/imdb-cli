@@ -3,7 +3,7 @@ const path = require('path');
 // set path of dotenv to make the CLI gather .env file when called from outside project root folder
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const clear = require('clear');
-const program = require('commander');
+import program from 'commander';
 import { processProgramArgs } from './cli/programArgs';
 import { CLI_COLOR, renderCLIHeader } from './cli/renderer/renderer';
 import { runCLI } from './cli/runCLI';

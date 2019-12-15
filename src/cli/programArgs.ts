@@ -1,4 +1,4 @@
-import * as program from 'commander';
+import program from 'commander';
 import { renderErrorString } from './renderer/renderer';
 import { CommandOption, commandOptions } from './settings/commands';
 import { packageVersion } from './settings/version';
