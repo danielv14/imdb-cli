@@ -18,14 +18,14 @@ clear();
 // display colorful IMDb header
 IMDb.displayHeader();
 
+const imdbInstance = new IMDb({
+  showPlot: !!program.plot,
+  limitPlot: program.limitPlot,
+  sortColumn: program.orderBy,
+  searchByType: IMDb.determineType({ movies: program.movies, series: program.series }),
+});
 if (program.title) {
-  const imdbInstance = new IMDb({
-    query: program.title,
-    showPlot: !!program.plot,
-    limitPlot: program.limitPlot,
-    sortColumn: program.orderBy,
-    searchByType: IMDb.determineType({ movies: program.movies, series: program.series }),
-  });
+  imdbInstance.searchQuery = program.title;
   if (program.info) {
     imdbInstance.seriesInfo();
   } else {
@@ -34,13 +34,7 @@ if (program.title) {
 } else {
   // prompt the user for a search string
   inquirer.prompt(inquirerPromptQuestion).then((answer: any) => {
-    const imdbInstance = new IMDb({
-      query: answer.searchString,
-      showPlot: !!program.plot,
-      limitPlot: program.limitPlot,
-      sortColumn: program.orderBy,
-      searchByType: IMDb.determineType({ movies: program.movies, series: program.series }),
-    });
-    imdbInstance.search();
+  imdbInstance.searchQuery = answer;
+  imdbInstance.search();
   });
 }

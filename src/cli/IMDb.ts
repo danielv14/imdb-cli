@@ -81,6 +81,9 @@ export class IMDb implements IMDbProperties {
     this.sortColumn = sortColumn;
   }
 
+  set searchQuery(query: any) {
+    this.query = query;
+  }
   /**
    * Render either a table with search results
    * or a message of no search results were found
