@@ -24,13 +24,14 @@
     "commander": "^2.20.0",
     "dotenv": "^8.2.0",
     "figlet": "^1.2.0",
-    "inquirer": "^3.2.2",
+    "inquirer": "^7.0.1",
     "lodash": "^4.17.13",
     "ora": "^1.3.0",
     "table-master": "^1.0.3"
   },
   "devDependencies": {
     "@types/figlet": "^1.2.0",
+    "@types/inquirer": "^6.5.0",
     "@types/jest": "^24.0.15",
     "@types/lodash": "^4.14.135",
     "@types/node": "^12.0.12",
