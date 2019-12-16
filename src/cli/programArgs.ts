@@ -1,9 +1,7 @@
 import program from 'commander';
 import { renderErrorString } from './renderer/renderer';
-import { CommandOption, commandOptions } from './settings/commands';
+import { CommandErrorText, CommandOption, commandOptions } from './settings/commands';
 import { packageVersion } from './settings/version';
-
-const ERROR_MOVIE_AND_SERIES_ARGS = `Cannot use both "movie (-m)" and "series (-s)" parameter together.`;
 
 /**
  * Process cli arguments and parse process.argv
@@ -20,7 +18,7 @@ export const processProgramArgs = (cliProgram: program.CommanderStatic) => {
 
 const validateArgs = (cliProgram: program.CommanderStatic) => {
   if (cliProgram.movies && cliProgram.series) {
-    renderErrorString(ERROR_MOVIE_AND_SERIES_ARGS);
+    renderErrorString(CommandErrorText.MovieAndSeriesFlag);
     process.exit();
   }
 };
