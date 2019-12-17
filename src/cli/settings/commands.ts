@@ -4,9 +4,6 @@ export interface CommandOption {
   description: string;
 }
 
-export enum CommandErrorText {
-  MovieAndSeriesFlag = `Cannot use both "movie (-m)" and "series (-s)" parameter together.`,
-}
 
 export const commandOptions: CommandOption[] = [
   {
