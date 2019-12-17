@@ -27,7 +27,7 @@ export const renderErrorString = (text: string) => {
 
 export const renderCommandError = (text: CommandErrorText) => {
   const color = renderColors[RenderColor.Error];
-  console.log(color(text));
+  console.log(color(text as unknown as string));
 };
 
 export const renderCLIHeader = (text: string, hex: string) => {
