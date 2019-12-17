@@ -18,7 +18,7 @@ export const processProgramArgs = (cliProgram: program.CommanderStatic) => {
 
 const validateArgs = (cliProgram: program.CommanderStatic) => {
   if (cliProgram.movies && cliProgram.series) {
-    renderErrorString(CommandErrorText.MovieAndSeriesFlag);
+    renderErrorString(CommandErrorText.MovieAndSeriesFlag as string);
     process.exit();
   }
 };
