@@ -1,5 +1,5 @@
 import program from 'commander';
-import { renderErrorString } from './renderer/renderer';
+import { renderCommandError } from './renderer/renderer';
 import { CommandErrorText, CommandOption, commandOptions } from './settings/commands';
 import { packageVersion } from './settings/version';
 
@@ -18,7 +18,7 @@ export const processProgramArgs = (cliProgram: program.CommanderStatic) => {
 
 const validateArgs = (cliProgram: program.CommanderStatic) => {
   if (cliProgram.movies && cliProgram.series) {
-    renderErrorString(CommandErrorText.MovieAndSeriesFlag as string);
+    renderCommandError(CommandErrorText.MovieAndSeriesFlag);
     process.exit();
   }
 };
