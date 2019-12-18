@@ -1,7 +1,7 @@
-import * as seriesMock from './mock/seriesMock';
+import * as seriesMock from '../mock/seriesMock';
+import { SearchResultSortColumn, SearchResultSortOrder, SearchResultType, SortOrder } from '../types/searchResult';
+import { Season } from '../types/series';
 import { getFullSeriesFromTitle } from './omdbApi';
-import { SearchResultSortColumn, SearchResultSortOrder, SearchResultType, SortOrder } from './types/searchResult';
-import { Season } from './types/series';
 import * as utils from './utils';
 
 describe('Utils functions', () => {

@@ -1,5 +1,5 @@
-import IMDb from './IMDb';
-import {Item, SearchResultType } from './types/searchResult';
+import { Item, SearchResultType } from '../types/searchResult';
+import { IMDb } from './IMDb';
 
 const queryObj = {
   query: 'harry potter',

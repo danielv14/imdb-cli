@@ -1,6 +1,6 @@
-const axios = require('axios');
-import { FullItem, Item, SearchResultType } from './types/searchResult';
-import { Season, Series } from './types/series';
+import axios from 'axios';
+import { FullItem, Item, SearchResultType } from '../types/searchResult';
+import { Season, Series } from '../types/series';
 import { sanitizeQuery } from './utils';
 
 const API_KEY = process.env.API_KEY;
