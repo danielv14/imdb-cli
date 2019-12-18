@@ -24,7 +24,6 @@ export const renderErrorString = (text: string) => {
   console.log(color(text));
 };
 
-
 export const renderCLIHeader = (text: string, hex: string) => {
   const color = hexColor(hex);
   console.log(color(figlet.textSync(text)));

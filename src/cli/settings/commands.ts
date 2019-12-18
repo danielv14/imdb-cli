@@ -4,7 +4,6 @@ export interface CommandOption {
   description: string;
 }
 
-
 export const commandOptions: CommandOption[] = [
   {
     short: '-p',
