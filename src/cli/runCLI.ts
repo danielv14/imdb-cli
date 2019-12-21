@@ -1,7 +1,7 @@
 import * as program from 'commander';
 import * as inquirer from 'inquirer';
 import { IMDb } from './IMDb';
-import { inquirerPromptQuestion } from './settings/inquirerPromptQuestion';
+import { inquirerPromptQuestion } from './settings/userInput';
 
 /**
  * Run the CLI program by creating a instance of IMDb CLI
