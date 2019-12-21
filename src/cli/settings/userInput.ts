@@ -1,6 +1,6 @@
 const INPUT_ERROR = 'Please enter a query to search for...';
 
-export const inquirerPromptQuestion = [
+export const inputQuestion = [
   {
     type: 'input',
     name: 'searchString',
