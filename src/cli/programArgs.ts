@@ -11,7 +11,6 @@ export const processProgramArgs = (cliProgram: program.CommanderStatic) => {
   cliProgram
     .version(packageVersion, '-v --version');
   commandOptions.map((command) => setupCommandOption(command, cliProgram));
-
   cliProgram.parse(process.argv);
   validateArgs(cliProgram);
 };
