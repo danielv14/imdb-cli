@@ -1,10 +1,15 @@
-const axios = require('axios');
-import { FullItem, Item, SearchResultType } from './types/searchResult';
-import { Season, Series } from './types/series';
-import { sanitizeQuery } from './utils';
+import { OmdbRequestParams } from '../types/request';
+import { FullItem, Item, SearchResultType } from '../types/searchResult';
+import { Season, Series } from '../types/series';
+import * as request from './request';
 
 const API_KEY = process.env.API_KEY;
-const BASE_URL = `http://www.omdbapi.com?apikey=${API_KEY}`;
+const BASE_URL = `http://www.omdbapi.com`;
+const API_PARAM = {
+  apikey: API_KEY,
+};
+
+const get = (params: OmdbRequestParams) => request.get(BASE_URL, { ...API_PARAM, ...params });
 
 const getNumberOfSeasons = (title: string, amount: number) => {
   const seasonsPromises = [];
@@ -14,27 +19,25 @@ const getNumberOfSeasons = (title: string, amount: number) => {
   return seasonsPromises;
 };
 
-const formatSeason = (data: any): Season => {
-  return {
-    title: data.Title,
-    seasonNumber: data.Season,
-    totalSeasons: data.totalSeasons,
-    episodes: data.Episodes,
-  };
-};
+const formatSeason = (data: any): Season => ({
+  title: data.Title,
+  seasonNumber: data.Season,
+  totalSeasons: data.totalSeasons,
+  episodes: data.Episodes,
+});
 
 export const searchByQuery = async (query: string): Promise<Item[]> => {
-  const { data } = await axios.get(`${BASE_URL}&s=${query}`);
+  const { data } = await get({s: query});
   return data.Search as Item[];
 };
 
 export const searchByQueryAndType = async (query: string, type: SearchResultType): Promise<Item[]> => {
-  const { data } = await axios.get(`${BASE_URL}&s=${query}&type=${type}`);
+  const { data } = await get({s: query, type});
   return data.Search as Item[];
 };
 
 export const getItemById = async (id: string): Promise<FullItem> => {
-  const { data } = await axios.get(`${BASE_URL}&i=${id}`);
+  const { data } = await get({i: id});
   return data as FullItem;
 };
 
@@ -44,12 +47,12 @@ export const getItemsByIds = async (ids: string[]): Promise<FullItem[]> => {
 };
 
 export const getSeasonFromTitle = async (title: string, season: number) => {
-  const { data } = await axios.get(`${BASE_URL}&t=${title}&Season=${season}`);
+  const { data } = await get({t: title, Season: season});
   return formatSeason(data);
 };
 
 export const getSeasonFromId = async (id: string, season: number) => {
-  const { data } = await axios.get(`${BASE_URL}&i=${id}&Season=${season}`);
+  const { data } = await get({i: id, Season: season});
   return formatSeason(data);
 };
 
@@ -60,7 +63,7 @@ export const getFullSeriesFromId = async (id: string) => {
 
 export const getFullSeriesFromTitle = async (title: string) => {
   const { totalSeasons, title: seriesTitle } = await getSeasonFromTitle(title, 1);
-  const seasons = await Promise.all(getNumberOfSeasons(sanitizeQuery(seriesTitle), parseInt(totalSeasons, 10)));
+  const seasons = await Promise.all(getNumberOfSeasons(seriesTitle, parseInt(totalSeasons, 10)));
   return {
     title: seriesTitle,
     totalSeasons,

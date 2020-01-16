@@ -1,17 +1,16 @@
-  import * as omdbApi from './omdbApi';
-  import { SearchResultType } from './types/searchResult';
-  import { sanitizeQuery } from './utils';
+import { SearchResultType } from '../types/searchResult';
+import * as omdbApi from './omdbApi';
 
-  describe('OMDb API Functions', () => {
+describe('OMDb API Functions', () => {
   describe('searchByQuery()', () => {
     it('should get search result for a given query', async () => {
-      const items = await omdbApi.searchByQuery(sanitizeQuery('Harry potter'));
+      const items = await omdbApi.searchByQuery('Harry potter');
       expect(items.length).toBeGreaterThan(1);
     });
   });
   describe('searchByQueryAndType()', () => {
     it('should get search result for a given query and type', async () => {
-      const items = await omdbApi.searchByQueryAndType(sanitizeQuery('Star wars'), SearchResultType.Series);
+      const items = await omdbApi.searchByQueryAndType('Star wars', SearchResultType.Series);
       items.map((item) => expect(item.Type).toEqual(SearchResultType.Series));
     });
   });
@@ -32,7 +31,7 @@
   });
   describe('getSeasonFromTitle()', () => {
     it('should get a specific season for a given title', async () => {
-      const title = sanitizeQuery('Game of thrones');
+      const title = 'Game of thrones';
       const season = await omdbApi.getSeasonFromTitle(title, 1);
       expect(season.seasonNumber).toEqual('1');
     });
@@ -57,7 +56,7 @@
   });
   describe('getAllSeasonsFromTitle()', () => {
     it('should get full series for a given title', async () => {
-      const title = sanitizeQuery('game of thrones');
+      const title = 'game of thrones';
       const series = await omdbApi.getFullSeriesFromTitle(title);
       expect(series.title).toBe('Game of Thrones');
       expect(series.totalSeasons).toBeDefined();
