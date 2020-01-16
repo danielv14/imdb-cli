@@ -5,19 +5,6 @@ import { getFullSeriesFromTitle } from './omdbApi';
 import * as utils from './utils';
 
 describe('Utils functions', () => {
-  describe('sanitizeQuery()', () => {
-    it('should be defined', () => {
-      expect(utils.sanitizeQuery).toBeDefined();
-    });
-    it('should sanitize a passed query', () => {
-      const query = 'harry potter';
-      expect(utils.sanitizeQuery(query)).toMatch('harry%20potter');
-    });
-    it('should not sanitize if not needed', () => {
-      const query = 'Interstellar';
-      expect(utils.sanitizeQuery(query)).toMatch(query);
-    });
-  });
   describe('sortColumn()', () => {
     it('should be defined', () => {
       expect(utils.sortByColumn).toBeDefined();
@@ -79,7 +66,7 @@ describe('Utils functions', () => {
       expect(seriesAverage.Seasons[1].AverageScore).toEqual(seriesMock.SCORE_S02);
     });
     it('should calculate average score for series taken from API', async () => {
-      const series = await getFullSeriesFromTitle(utils.sanitizeQuery('game of thrones'));
+      const series = await getFullSeriesFromTitle('game of thrones');
       const seriesAverage = utils.calculateSeriesAverageScore(series);
       expect(seriesAverage.Title).toBeDefined();
       expect(seriesAverage.Seasons.length).toBeGreaterThan(1);
