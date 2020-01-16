@@ -5,19 +5,6 @@ import { getFullSeriesFromTitle } from './omdbApi';
 import * as utils from './utils';
 
 describe('Utils functions', () => {
-  describe('sanitizeQuery()', () => {
-    it('should be defined', () => {
-      expect(utils.sanitizeQuery).toBeDefined();
-    });
-    it('should sanitize a passed query', () => {
-      const query = 'harry potter';
-      expect(utils.sanitizeQuery(query)).toMatch('harry%20potter');
-    });
-    it('should not sanitize if not needed', () => {
-      const query = 'Interstellar';
-      expect(utils.sanitizeQuery(query)).toMatch(query);
-    });
-  });
   describe('sortColumn()', () => {
     it('should be defined', () => {
       expect(utils.sortByColumn).toBeDefined();
