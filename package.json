@@ -27,6 +27,7 @@
     "inquirer": "^7.0.1",
     "lodash": "^4.17.13",
     "ora": "^4.0.3",
+    "querystringify": "^2.1.1",
     "table-master": "^1.0.3"
   },
   "devDependencies": {
@@ -36,6 +37,7 @@
     "@types/jest": "^24.0.15",
     "@types/lodash": "^4.14.135",
     "@types/node": "^12.0.12",
+    "@types/querystringify": "^2.0.0",
     "jest": "^24.8.0",
     "prettier": "^1.18.2",
     "ts-jest": "^24.0.2",
