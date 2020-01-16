@@ -1,4 +1,4 @@
-import { RequestParams } from '../types/request';
+import { OmdbRequestParams } from '../types/request';
 import { FullItem, Item, SearchResultType } from '../types/searchResult';
 import { Season, Series } from '../types/series';
 import * as request from './request';
@@ -9,7 +9,7 @@ const API_PARAM = {
   apikey: API_KEY,
 };
 
-const get = (params: RequestParams) => request.get(BASE_URL, { ...API_PARAM, ...params });
+const get = (params: OmdbRequestParams) => request.get(BASE_URL, { ...API_PARAM, ...params });
 
 const getNumberOfSeasons = (title: string, amount: number) => {
   const seasonsPromises = [];

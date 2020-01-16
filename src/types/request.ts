@@ -5,7 +5,7 @@ type Title = string;
 type ImdbId = string;
 type Season = number;
 
-export interface RequestParams {
+export interface OmdbRequestParams {
   s?: Query;
   t?: Title;
   type?: SearchResultType;
