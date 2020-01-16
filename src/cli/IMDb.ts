@@ -6,7 +6,7 @@ import {
   searchByQuery,
   searchByQueryAndType,
 } from '../lib/omdbApi';
-import { calculateAverage, calculateSeriesAverageScore, sanitizeQuery, sortByColumn, truncate } from '../lib/utils';
+import { calculateAverage, calculateSeriesAverageScore, sortByColumn, truncate } from '../lib/utils';
 import { IMDbProperties } from '../types/imdb';
 import {
   FormattedAverageSeason,
@@ -121,11 +121,10 @@ export class IMDb implements IMDbProperties {
    * @returns {Promise}
    */
   public async getSearchResult(query: string): Promise<Item[]> {
-    const sanitizedQuery = sanitizeQuery(query);
     if (this.searchByType === SearchResultType.All) {
-      return searchByQuery(sanitizedQuery);
+      return searchByQuery(query);
     }
-    return searchByQueryAndType(sanitizedQuery, this.searchByType);
+    return searchByQueryAndType(query, this.searchByType);
   }
 
   /**

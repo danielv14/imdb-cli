@@ -79,7 +79,7 @@ describe('Utils functions', () => {
       expect(seriesAverage.Seasons[1].AverageScore).toEqual(seriesMock.SCORE_S02);
     });
     it('should calculate average score for series taken from API', async () => {
-      const series = await getFullSeriesFromTitle(utils.sanitizeQuery('game of thrones'));
+      const series = await getFullSeriesFromTitle('game of thrones');
       const seriesAverage = utils.calculateSeriesAverageScore(series);
       expect(seriesAverage.Title).toBeDefined();
       expect(seriesAverage.Seasons.length).toBeGreaterThan(1);
