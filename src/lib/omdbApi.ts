@@ -1,3 +1,4 @@
+import { RequestParams } from '../types/request';
 import { FullItem, Item, SearchResultType } from '../types/searchResult';
 import { Season, Series } from '../types/series';
 import * as request from './request';
@@ -7,14 +8,6 @@ const BASE_URL = `http://www.omdbapi.com`;
 const API_PARAM = {
   apikey: API_KEY,
 };
-
-interface RequestParams {
-  s?: string;
-  t?: string;
-  type?: SearchResultType;
-  i?: string;
-  Season?: number;
-}
 
 const get = (params: RequestParams) => request.get(BASE_URL, { ...API_PARAM, ...params });
 
