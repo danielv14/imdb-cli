@@ -1,5 +1,6 @@
+import { FullItem, Item } from '../types/item';
 import { OmdbRequestParams } from '../types/request';
-import { FullItem, Item, SearchResultType } from '../types/searchResult';
+import { SearchResultType } from '../types/searchResult';
 import { Season, Series } from '../types/series';
 import * as request from './request';
 

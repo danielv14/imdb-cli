@@ -8,16 +8,14 @@ import {
 } from '../lib/omdbApi';
 import { calculateAverage, calculateSeriesAverageScore, sortByColumn, truncate } from '../lib/utils';
 import { IMDbProperties } from '../types/imdb';
+import { FormattedItem, FullItem, Item } from '../types/item';
 import {
-  FormattedAverageSeason,
-  FormattedItem,
-  FullItem,
-  Item,
   SearchResultSortColumn,
   SearchResultSortOrder,
   SearchResultType,
   SortOrder,
 } from '../types/searchResult';
+import { FormattedAverageSeason } from '../types/season';
 import { SeriesAverageScore } from '../types/series';
 import * as renderer from './renderer/renderer';
 
