@@ -19,7 +19,7 @@ export const sortByColumn = ({ items, column, order }: SortObject) => orderBy(it
  * @param {Number} limit
  * @returns {String}
  */
-export const truncate = (text: string, limit: number): string => text ?  `${text.substring(0, limit)}...` : '';
+export const truncate = (text: string, limit: number): string => text ? `${text.substring(0, limit)}...` : '';
 
 export const calculateAverage = (arr: number[]): number => {
   const average = arr.reduce((a, b) => a + b, 0) / arr.length;
