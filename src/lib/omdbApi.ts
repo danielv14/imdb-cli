@@ -1,16 +1,15 @@
+import { API_KEY, BASE_URL } from '../cli/settings/omdb';
 import { FullItem, Item } from '../types/item';
 import { OmdbRequestParams } from '../types/request';
 import { SearchResultType } from '../types/searchResult';
 import { Season, Series } from '../types/series';
 import * as request from './request';
 
-const API_KEY = process.env.API_KEY;
-const BASE_URL = `http://www.omdbapi.com`;
-const API_PARAM = {
+const DEFAULT_API_PARAM = {
   apikey: API_KEY,
 };
 
-const get = (params: OmdbRequestParams) => request.get(BASE_URL, { ...API_PARAM, ...params });
+const get = (params: OmdbRequestParams) => request.get(BASE_URL, { ...DEFAULT_API_PARAM, ...params });
 
 const getNumberOfSeasons = (title: string, amount: number) => {
   const seasonsPromises = [];
