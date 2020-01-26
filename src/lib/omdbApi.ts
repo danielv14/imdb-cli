@@ -1,10 +1,11 @@
-import { API_KEY, BASE_URL } from '../cli/settings/omdb';
 import { FullItem, Item } from '../types/item';
 import { OmdbRequestParams } from '../types/request';
 import { SearchResultType } from '../types/searchResult';
 import { Season, Series } from '../types/series';
 import * as request from './request';
 
+const API_KEY = process.env.API_KEY;
+const BASE_URL = `http://www.omdbapi.com`;
 const DEFAULT_API_PARAM = {
   apikey: API_KEY,
 };
