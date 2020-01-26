@@ -9,6 +9,7 @@ import {
 import { calculateAverage, calculateSeriesAverageScore, sortByColumn, truncate } from '../lib/utils';
 import { IMDbProperties } from '../types/imdb';
 import { FormattedItem, FullItem, Item } from '../types/item';
+import { RatingAverage } from '../types/rating';
 import {
   SearchResultSortColumn,
   SearchResultSortOrder,
@@ -206,16 +207,22 @@ export class IMDb implements IMDbProperties {
   public scoreColor(score: number, average: number) {
     let diff;
     const diffThreshold = 0.5;
+    const renderStates = {
+      [RatingAverage.Above]: renderer.getRenderColor(renderer.RenderColor.Success),
+      [RatingAverage.Neutral]: renderer.getRenderColor(renderer.RenderColor.Neutral),
+      [RatingAverage.Below]: renderer.getRenderColor(renderer.RenderColor.Error),
+    };
+
     if (score < average) {
       diff = average - score;
       return diff > diffThreshold ?
-        renderer.getRenderColor(renderer.RenderColor.Error) :
-        renderer.getRenderColor(renderer.RenderColor.Neutral);
+        renderStates[RatingAverage.Below] :
+        renderStates[RatingAverage.Neutral];
     }
     diff = score - average;
     return diff > diffThreshold ?
-      renderer.getRenderColor(renderer.RenderColor.Success) :
-      renderer.getRenderColor(renderer.RenderColor.Neutral);
+      renderStates[RatingAverage.Above] :
+      renderStates[RatingAverage.Neutral];
   }
 
   public async seriesInfo(): Promise<void> {
