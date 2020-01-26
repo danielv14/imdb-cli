@@ -168,7 +168,7 @@ export class IMDb implements IMDbProperties {
     const formattedSeriesScore = series.Seasons.map((season) => {
       const color = this.scoreColor(season.AverageScore, averageSeasonScore);
       return {
-        [`${series.Title} season`]: `Season ${season.SeasonNumber}`,
+        [series.Title]: `Season ${season.SeasonNumber}`,
         'IMDb score': color(season.AverageScore + ''),
       };
     });
