@@ -7,7 +7,7 @@ import {
   searchByQueryAndType,
 } from '../lib/omdbApi';
 import { calculateAverage, calculateSeriesAverageScore, sortByColumn, truncate } from '../lib/utils';
-import { IMDbProperties } from '../types/imdb';
+import { IMDbCLI } from '../types/imdb';
 import { FormattedItem, FullItem, Item } from '../types/item';
 import { RatingAverage } from '../types/rating';
 import {
@@ -25,7 +25,7 @@ import * as renderer from './renderer/renderer';
  *
  * @class IMDb
  */
-export class IMDb implements IMDbProperties {
+export class IMDb implements IMDbCLI {
 
   /**
    * Static method to determine type, i.e movies or series is to be used when creating the IMDb class
