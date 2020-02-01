@@ -7,17 +7,16 @@ import {
   searchByQueryAndType,
 } from '../lib/omdbApi';
 import { calculateAverage, calculateSeriesAverageScore, sortByColumn, truncate } from '../lib/utils';
-import { IMDbProperties } from '../types/imdb';
+import { IMDbCLI } from '../types/imdb';
+import { FormattedItem, FullItem, Item } from '../types/item';
+import { RatingAverage } from '../types/rating';
 import {
-  FormattedAverageSeason,
-  FormattedItem,
-  FullItem,
-  Item,
   SearchResultSortColumn,
   SearchResultSortOrder,
   SearchResultType,
   SortOrder,
 } from '../types/searchResult';
+import { FormattedAverageSeason } from '../types/season';
 import { SeriesAverageScore } from '../types/series';
 import * as renderer from './renderer/renderer';
 
@@ -26,7 +25,7 @@ import * as renderer from './renderer/renderer';
  *
  * @class IMDb
  */
-export class IMDb implements IMDbProperties {
+export class IMDb implements IMDbCLI {
 
   /**
    * Static method to determine type, i.e movies or series is to be used when creating the IMDb class
@@ -165,11 +164,11 @@ export class IMDb implements IMDbProperties {
   }
 
   public getFormattedSeriesScore(series: SeriesAverageScore): FormattedAverageSeason[] {
-    const averageSeasonScore = calculateAverage(series.Seasons.map((season) => season.AverageScore));
+    const averageSeriesScore = calculateAverage(series.Seasons.map((season) => season.AverageScore));
     const formattedSeriesScore = series.Seasons.map((season) => {
-      const color = this.scoreColor(season.AverageScore, averageSeasonScore);
+      const color = this.scoreColor(season.AverageScore, averageSeriesScore);
       return {
-        [`${series.Title} season`]: `Season ${season.SeasonNumber}`,
+        [series.Title]: `Season ${season.SeasonNumber}`,
         'IMDb score': color(season.AverageScore + ''),
       };
     });
@@ -208,16 +207,22 @@ export class IMDb implements IMDbProperties {
   public scoreColor(score: number, average: number) {
     let diff;
     const diffThreshold = 0.5;
+    const renderStates = {
+      [RatingAverage.Above]: renderer.getRenderColor(renderer.RenderColor.Success),
+      [RatingAverage.Neutral]: renderer.getRenderColor(renderer.RenderColor.Neutral),
+      [RatingAverage.Below]: renderer.getRenderColor(renderer.RenderColor.Error),
+    };
+
     if (score < average) {
       diff = average - score;
       return diff > diffThreshold ?
-        renderer.getRenderColor(renderer.RenderColor.Error) :
-        renderer.getRenderColor(renderer.RenderColor.Neutral);
+        renderStates[RatingAverage.Below] :
+        renderStates[RatingAverage.Neutral];
     }
     diff = score - average;
     return diff > diffThreshold ?
-      renderer.getRenderColor(renderer.RenderColor.Success) :
-      renderer.getRenderColor(renderer.RenderColor.Neutral);
+      renderStates[RatingAverage.Above] :
+      renderStates[RatingAverage.Neutral];
   }
 
   public async seriesInfo(): Promise<void> {
