@@ -164,9 +164,9 @@ export class IMDb implements IMDbCLI {
   }
 
   public getFormattedSeriesScore(series: SeriesAverageScore): FormattedAverageSeason[] {
-    const averageSeasonScore = calculateAverage(series.Seasons.map((season) => season.AverageScore));
+    const averageSeriesScore = calculateAverage(series.Seasons.map((season) => season.AverageScore));
     const formattedSeriesScore = series.Seasons.map((season) => {
-      const color = this.scoreColor(season.AverageScore, averageSeasonScore);
+      const color = this.scoreColor(season.AverageScore, averageSeriesScore);
       return {
         [series.Title]: `Season ${season.SeasonNumber}`,
         'IMDb score': color(season.AverageScore + ''),
