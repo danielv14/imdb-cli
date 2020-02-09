@@ -6,7 +6,6 @@ import {
   searchByQuery,
   searchByQueryAndType,
 } from '../lib/omdbApi';
-import { calculateAverage, calculateSeriesAverageScore, sortByColumn, truncate } from '../lib/utils';
 import { IMDbCLI } from '../types/imdb';
 import { FormattedItem, FullItem, Item } from '../types/item';
 import { RatingAverage } from '../types/rating';
@@ -18,6 +17,10 @@ import {
 } from '../types/searchResult';
 import { FormattedAverageSeason } from '../types/season';
 import { SeriesAverageScore } from '../types/series';
+import { calculateAverage } from '../utils/calculateAverage';
+import { calculateSeriesAverageScore } from '../utils/series';
+import { sortByColumn } from '../utils/sortByColumn';
+import { truncate } from '../utils/truncate';
 import * as renderer from './renderer/renderer';
 
 /**
