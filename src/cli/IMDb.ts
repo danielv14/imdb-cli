@@ -1,5 +1,6 @@
 import ora from 'ora';
 import {
+  getFullSeriesFromId,
   getFullSeriesFromTitle,
   getItemById,
   getItemsByIds,
@@ -18,6 +19,7 @@ import {
 import { FormattedAverageSeason } from '../types/season';
 import { SeriesAverageScore } from '../types/series';
 import { calculateAverage } from '../utils/calculateAverage';
+import { isIMDbId } from '../utils/isIMDbId';
 import { calculateSeriesAverageScore } from '../utils/series';
 import { sortByColumn } from '../utils/sortByColumn';
 import { truncate } from '../utils/truncate';
@@ -231,7 +233,10 @@ export class IMDb implements IMDbCLI {
   public async seriesInfo(): Promise<void> {
     const spinner = ora('Searching IMDb for series to calculate average season score. Please wait...').start();
     try {
-      const fullSeries = await getFullSeriesFromTitle(this.query);
+      const fullSeries = isIMDbId(this.query) ?
+        await getFullSeriesFromId(this.query) :
+        await getFullSeriesFromTitle(this.query);
+
       if (!fullSeries || !fullSeries.seasons.length) {
         renderer.renderErrorString(`\nCould not find a series matching '${this.query}'. Please try again.`);
         process.exit();
