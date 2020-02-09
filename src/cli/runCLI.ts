@@ -1,6 +1,6 @@
 import * as program from 'commander';
 import * as inquirer from 'inquirer';
-import { IMDb } from './IMDb';
+import { createCLI } from './createCLI';
 import { inputQuestion } from './settings/userInput';
 
 /**
@@ -23,18 +23,6 @@ export const runCLI = async (cliProgram: program.CommanderStatic) => {
   const { searchString } = await inquirer.prompt(inputQuestion);
   imdbInstance.searchQuery = searchString;
   imdbInstance.search();
-};
-
-const createCLI = (cliProgram: program.CommanderStatic) => {
-  const { plot, limitPlot, orderBy, movies, series, title } = cliProgram;
-  const CLI = new IMDb({
-    query: title,
-    showPlot: !!plot,
-    limitPlot,
-    sortColumn: orderBy,
-    searchByType: IMDb.determineType({ movies, series }),
-  });
-  return CLI;
 };
 
 const hasUserInput = (cliProgram: program.CommanderStatic, input: string) =>  !!cliProgram[input];

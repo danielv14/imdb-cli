@@ -21,7 +21,7 @@ import { SeriesAverageScore } from '../types/series';
 import * as renderer from './renderer/renderer';
 
 /**
- * Class to  handle scraping of IMDb
+ * Class to handle scraping of IMDb
  *
  * @class IMDb
  */
