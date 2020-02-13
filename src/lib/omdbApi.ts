@@ -1,5 +1,5 @@
 import { FullItem, Item } from '../types/item';
-import { OmdbRequestParams } from '../types/request';
+import { OmdbRequestParams, QueryParams } from '../types/request';
 import { SearchResultType } from '../types/searchResult';
 import { Season, Series } from '../types/series';
 import * as request from './request';
@@ -12,6 +12,13 @@ const DEFAULT_API_PARAM = {
 
 const get = (params: OmdbRequestParams) => request.get(BASE_URL, { ...DEFAULT_API_PARAM, ...params });
 
+const formatSeason = (data: any): Season => ({
+  title: data.Title,
+  seasonNumber: data.Season,
+  totalSeasons: data.totalSeasons,
+  episodes: data.Episodes,
+});
+
 const getNumberOfSeasons = (title: string, amount: number) => {
   const seasonsPromises = [];
   for (let i = 1; i <= amount; i++) {
@@ -20,25 +27,25 @@ const getNumberOfSeasons = (title: string, amount: number) => {
   return seasonsPromises;
 };
 
-const formatSeason = (data: any): Season => ({
-  title: data.Title,
-  seasonNumber: data.Season,
-  totalSeasons: data.totalSeasons,
-  episodes: data.Episodes,
-});
-
 export const searchByQuery = async (query: string): Promise<Item[]> => {
-  const { data } = await get({s: query});
+  const { data } = await get({
+    [QueryParams.Query]: query,
+  });
   return data.Search as Item[];
 };
 
 export const searchByQueryAndType = async (query: string, type: SearchResultType): Promise<Item[]> => {
-  const { data } = await get({s: query, type});
+  const { data } = await get({
+    [QueryParams.Query]: query,
+    [QueryParams.Type]: type,
+  });
   return data.Search as Item[];
 };
 
 export const getItemById = async (id: string): Promise<FullItem> => {
-  const { data } = await get({i: id});
+  const { data } = await get({
+    [QueryParams.Id]: id,
+  });
   return data as FullItem;
 };
 
@@ -48,12 +55,18 @@ export const getItemsByIds = async (ids: string[]): Promise<FullItem[]> => {
 };
 
 export const getSeasonFromTitle = async (title: string, season: number) => {
-  const { data } = await get({t: title, Season: season});
+  const { data } = await get({
+    [QueryParams.Title]: title,
+    [QueryParams.Season]: season,
+  });
   return formatSeason(data);
 };
 
 export const getSeasonFromId = async (id: string, season: number) => {
-  const { data } = await get({i: id, Season: season});
+  const { data } = await get({
+    [QueryParams.Id]: id,
+    [QueryParams.Season]: season,
+  });
   return formatSeason(data);
 };
 
