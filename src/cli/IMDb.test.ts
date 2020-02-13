@@ -1,4 +1,5 @@
-import { Item, SearchResultType } from '../types/searchResult';
+import { Item } from '../types/item';
+import { SearchResultType } from '../types/searchResult';
 import { IMDb } from './IMDb';
 
 const queryObj = {

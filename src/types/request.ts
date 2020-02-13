@@ -12,3 +12,11 @@ export interface OmdbRequestParams {
   i?: ImdbId;
   Season?: Season;
 }
+
+export enum QueryParams {
+  Query = 's',
+  Title = 't',
+  Type = 'type',
+  Id = 'i',
+  Season = 'Season',
+}

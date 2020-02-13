@@ -1,32 +1,36 @@
 import ora from 'ora';
 import {
+  getFullSeriesFromId,
   getFullSeriesFromTitle,
   getItemById,
   getItemsByIds,
   searchByQuery,
   searchByQueryAndType,
 } from '../lib/omdbApi';
-import { calculateAverage, calculateSeriesAverageScore, sortByColumn, truncate } from '../lib/utils';
-import { IMDbProperties } from '../types/imdb';
+import { IMDbCLI } from '../types/imdb';
+import { FormattedItem, FullItem, Item } from '../types/item';
+import { RatingAverage } from '../types/rating';
 import {
-  FormattedAverageSeason,
-  FormattedItem,
-  FullItem,
-  Item,
   SearchResultSortColumn,
   SearchResultSortOrder,
   SearchResultType,
   SortOrder,
 } from '../types/searchResult';
+import { FormattedAverageSeason } from '../types/season';
 import { SeriesAverageScore } from '../types/series';
+import { calculateAverage } from '../utils/calculateAverage';
+import { isIMDbId } from '../utils/isIMDbId';
+import { calculateSeriesAverageScore } from '../utils/series';
+import { sortByColumn } from '../utils/sortByColumn';
+import { truncate } from '../utils/truncate';
 import * as renderer from './renderer/renderer';
 
 /**
- * Class to  handle scraping of IMDb
+ * Class to handle scraping of IMDb
  *
  * @class IMDb
  */
-export class IMDb implements IMDbProperties {
+export class IMDb implements IMDbCLI {
 
   /**
    * Static method to determine type, i.e movies or series is to be used when creating the IMDb class
@@ -165,11 +169,11 @@ export class IMDb implements IMDbProperties {
   }
 
   public getFormattedSeriesScore(series: SeriesAverageScore): FormattedAverageSeason[] {
-    const averageSeasonScore = calculateAverage(series.Seasons.map((season) => season.AverageScore));
+    const averageSeriesScore = calculateAverage(series.Seasons.map((season) => season.AverageScore));
     const formattedSeriesScore = series.Seasons.map((season) => {
-      const color = this.scoreColor(season.AverageScore, averageSeasonScore);
+      const color = this.scoreColor(season.AverageScore, averageSeriesScore);
       return {
-        [`${series.Title} season`]: `Season ${season.SeasonNumber}`,
+        [series.Title]: `Season ${season.SeasonNumber}`,
         'IMDb score': color(season.AverageScore + ''),
       };
     });
@@ -208,22 +212,31 @@ export class IMDb implements IMDbProperties {
   public scoreColor(score: number, average: number) {
     let diff;
     const diffThreshold = 0.5;
+    const renderStates = {
+      [RatingAverage.Above]: renderer.getRenderColor(renderer.RenderColor.Success),
+      [RatingAverage.Neutral]: renderer.getRenderColor(renderer.RenderColor.Neutral),
+      [RatingAverage.Below]: renderer.getRenderColor(renderer.RenderColor.Error),
+    };
+
     if (score < average) {
       diff = average - score;
       return diff > diffThreshold ?
-        renderer.getRenderColor(renderer.RenderColor.Error) :
-        renderer.getRenderColor(renderer.RenderColor.Neutral);
+        renderStates[RatingAverage.Below] :
+        renderStates[RatingAverage.Neutral];
     }
     diff = score - average;
     return diff > diffThreshold ?
-      renderer.getRenderColor(renderer.RenderColor.Success) :
-      renderer.getRenderColor(renderer.RenderColor.Neutral);
+      renderStates[RatingAverage.Above] :
+      renderStates[RatingAverage.Neutral];
   }
 
   public async seriesInfo(): Promise<void> {
     const spinner = ora('Searching IMDb for series to calculate average season score. Please wait...').start();
     try {
-      const fullSeries = await getFullSeriesFromTitle(this.query);
+      const fullSeries = isIMDbId(this.query) ?
+        await getFullSeriesFromId(this.query) :
+        await getFullSeriesFromTitle(this.query);
+
       if (!fullSeries || !fullSeries.seasons.length) {
         renderer.renderErrorString(`\nCould not find a series matching '${this.query}'. Please try again.`);
         process.exit();
