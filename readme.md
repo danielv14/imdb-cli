@@ -9,7 +9,7 @@ The IMDB-CLI needs an api key from OMDb to work properly. You can easily get you
 Once you have your api key you need to create a `.env` file in the project root folder with the following content:
 
 ```
-API_KEY=YOUR-API-KEU
+API_KEY=YOUR-API-KEY
 ```
 
 ## Usage
