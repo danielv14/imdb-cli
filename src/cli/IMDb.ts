@@ -93,8 +93,8 @@ export class IMDb implements IMDbCliInterface {
       }
       let searchResult;
       if (this.showPlot) {
-        const results = await getItemsByIds(itemsByQuery.map((res) => res.imdbID));
-        searchResult = results.map(
+        const fullItems = await getItemsByIds(itemsByQuery.map((res) => res.imdbID));
+        searchResult = fullItems.map(
           (result: Item) => getFormattedItem(result, this.showPlot, this.limitPlot),
         ) as FormattedItem[];
       } else {
