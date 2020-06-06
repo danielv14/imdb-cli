@@ -12,17 +12,17 @@ export const runCLI = async (cliProgram: program.CommanderStatic) => {
   const imdbInstance = createCLI(cliProgram);
 
   if (hasUserInput(cliProgram, 'title') && hasUserInput(cliProgram, 'info')) {
-    imdbInstance.seriesInfo();
+    imdbInstance.getSeriesInfo();
     return;
   }
   if (hasUserInput(cliProgram, 'title')) {
-    imdbInstance.search();
+    imdbInstance.run();
     return;
   }
   // prompt the user for a search string
   const { searchString } = await inquirer.prompt(inputQuestion);
   imdbInstance.searchQuery = searchString;
-  imdbInstance.search();
+  imdbInstance.run();
 };
 
 const hasUserInput = (cliProgram: program.CommanderStatic, input: string) =>  !!cliProgram[input];
