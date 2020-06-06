@@ -37,3 +37,5 @@ export const renderErrorInfo = (info: string, error: string) => {
 export const renderTable = (text: any) => console.table(text);
 
 export const hexColor = (hex: string) => chalk.hex(hex);
+
+export const renderWithColor = hexColor(CLI_COLOR);
