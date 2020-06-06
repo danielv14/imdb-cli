@@ -22,16 +22,6 @@ describe('IMDb class', () => {
     expect(imdbInstance.searchByType).toBe(SearchResultType.All);
   });
 
-  describe('determineType()', () => {
-    it('should return the right type', () => {
-      expect(IMDb.determineType({ movies: true })).toMatch(SearchResultType.Movies);
-      expect(IMDb.determineType({ series: true })).toMatch(SearchResultType.Series);
-      expect(IMDb.determineType({ series: false })).toBe(SearchResultType.All);
-      expect(IMDb.determineType({ movies: false })).toBe(SearchResultType.All);
-      expect(IMDb.determineType({})).toBe(SearchResultType.All);
-    });
-  });
-
   describe('getSearchResult()', () => {
     it('should return search result for a given query', async () => {
       const response = await imdbInstance.getSearchResult(imdbInstance.query);
@@ -58,47 +48,6 @@ describe('IMDb class', () => {
       const response = await imdbInstanceSW.getSearchResult(imdbInstanceSW.query);
       const filteredData = response.filter((item: Item) => item.Type === 'series');
       expect(filteredData.length).toBeGreaterThan(0);
-    });
-  });
-
-  describe('getItemByIMDbId()', () => {
-    it('should get item by IMDb Id', async () => {
-      const id = 'tt0458290';
-      const item = await imdbInstance.getItemByIMDbId(id);
-      expect(item.imdbID).toMatch(id);
-    });
-  });
-
-  describe('getFullItemsByIMDBIds()', () => {
-    it('should get items by IMDb Ids', async () => {
-      const ids = ['tt0458290', 'tt0330373'];
-      const items = await imdbInstance.getFullItemsByIMDBIds(ids);
-      expect(items.length).toBe(2);
-      items.map((item, index) => expect(item.imdbID).toEqual(ids[index]));
-    });
-  });
-
-  describe('getFormattedSearchResult()', () => {
-    it('should return expected object', () => {
-      const objFormatted = imdbInstance.getFormattedSearchResult({
-        Title: 'Hello world',
-        Year: '1991',
-        Type: 'movie',
-        imdbID: 'tt123456',
-      });
-      'Title,Year,Type,IMDb ID'.split(',').map((objKey: string) => expect(objFormatted).toHaveProperty(objKey));
-      expect(objFormatted).not.toHaveProperty('Plot');
-    });
-    it('should return expected object with plot', () => {
-      const objFormatted = imdbInstance.getFormattedSearchResult({
-        Title: 'Hello world',
-        Year: '1991',
-        Type: 'movie',
-        Plot:
-          'This is a very long plot and some if it will and should be truncated and I think',
-        imdbID: 'tt123456',
-      }, true);
-      'Title,Year,Type,Plot,IMDb ID'.split(',').map((objKey: string) => expect(objFormatted).toHaveProperty(objKey));
     });
   });
 });

@@ -12,7 +12,7 @@ export const runCLI = async (cliProgram: program.CommanderStatic) => {
   const imdbInstance = createCLI(cliProgram);
 
   if (hasUserInput(cliProgram, 'title') && hasUserInput(cliProgram, 'info')) {
-    imdbInstance.seriesInfo();
+    imdbInstance.getSeriesInfo();
     return;
   }
   if (hasUserInput(cliProgram, 'title')) {
