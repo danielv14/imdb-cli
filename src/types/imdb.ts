@@ -12,6 +12,6 @@ export interface IMDbCliInterface extends IMDbCLIProperties {
   searchQuery: (query: any) => void;
   renderSearchResults: (result?: FormattedItem[]) => void;
   getSearchResult: (query: string) => Promise<Item[]>;
-  search: () => Promise<void>;
+  run: () => Promise<void>;
   getSeriesInfo: () => Promise<void>;
 }

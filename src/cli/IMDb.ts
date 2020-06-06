@@ -81,9 +81,9 @@ export class IMDb implements IMDbCliInterface {
   }
 
   /**
-   * Perform search for movies/series
+   * Run the CLI
    */
-  public async search(): Promise<void> {
+  public async run(): Promise<void> {
     const spinner = ora('Searching IMDb. Please wait...').start();
     try {
       const itemsByQuery = await this.getSearchResult(this.query);
