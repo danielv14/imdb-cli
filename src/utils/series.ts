@@ -1,12 +1,13 @@
 import { Episode, Season, SeasonAverageScore, Series, SeriesAverageScore } from '../types/series';
 import { calculateAverage } from './calculateAverage';
+import { episodeRatingAsNumber } from './episode';
 import { hasSeasonStarted } from './hasSeasonStarted';
 
 export const NOT_RELEASED_TEXT = 'Not yet released';
 
 export const calculateEpisodeAverageScore = (episodes: Episode[]): number => {
   const scores = episodes
-    .map((episode) => parseFloat(episode.imdbRating))
+    .map(episodeRatingAsNumber)
     .filter((rating) => !isNaN(rating));
   return calculateAverage(scores);
 };

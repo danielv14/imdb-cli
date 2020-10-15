@@ -1,8 +1,7 @@
 import { Season } from '../types/series';
-
-const NOT_RELEASED = 'N/A';
+import { isEpisodeReleased } from './episode';
 
 export const hasSeasonStarted = (season: Season): boolean => {
-  const airedEpisodes = season.episodes.filter((episode) => episode.Released !== NOT_RELEASED );
+  const airedEpisodes = season.episodes.filter(isEpisodeReleased);
   return !!airedEpisodes.length;
 };
