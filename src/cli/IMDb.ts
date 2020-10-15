@@ -135,7 +135,14 @@ export class IMDb implements IMDbCliInterface {
       }
       const allEpisodes = getAllEpisodeScores(fullSeries);
       spinner.stop();
-      renderer.renderAsciiChart(allEpisodes);
+      if (allEpisodes.length > 400) {
+        renderer.renderErrorString('Too many episodes to display in a ratings graph.');
+        renderer.renderText('\nTry using the "-i" flag instead of "-g" to display average season scores in a list.');
+        return;
+      }
+      renderer.renderText(`Ratings graph for series "${fullSeries.title}"\n`);
+      // Pad episode count to try and scale ascii chart from 1-10
+      renderer.renderAsciiChart([0, ...allEpisodes]);
     } catch (e) {
       spinner.stop();
       renderer.renderErrorInfo('Program exit with error', e);
