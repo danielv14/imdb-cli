@@ -81,6 +81,13 @@ export const SEASON2 = {
   episodes: EPISODES_S02,
 } as Season;
 
+export const SEASON1_NON_RELEASED_EPISODES = {
+  title: 'game of thrones',
+  seasonNumber: 'Season 1',
+  totalSeasons: '8',
+  episodes: EPISODES_S01_INVALID,
+} as Season;
+
 export const SERIES = {
   title: SEASON1.title,
   totalSeasons: SEASON1.totalSeasons,
