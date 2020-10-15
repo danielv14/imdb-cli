@@ -1,5 +1,7 @@
+import * as asciichart from 'asciichart';
 import chalk from 'chalk';
 import figlet from 'figlet';
+
 // eslint-disable-next-line no-unused-vars
 const tab = require('table-master');
 
@@ -37,5 +39,7 @@ export const renderErrorInfo = (info: string, error: string) => {
 export const renderTable = (text: any) => console.table(text);
 
 export const hexColor = (hex: string) => chalk.hex(hex);
+
+export const renderAsciiChart = (input: number[]) => console.log(asciichart.plot(input, {height:  20}));
 
 export const renderWithColor = hexColor(CLI_COLOR);

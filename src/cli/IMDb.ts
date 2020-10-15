@@ -1,7 +1,6 @@
 import ora from 'ora';
 import {
-  getFullSeriesFromId,
-  getFullSeriesFromTitle,
+  getFullSeriesFromQuery,
   getItemsByIds,
   searchByQuery,
   searchByQueryAndType,
@@ -12,7 +11,7 @@ import {
   SearchResultSortColumn,
   SearchResultType,
 } from '../types/searchResult';
-import { isIMDbId } from '../utils/isIMDbId';
+import { getAllEpisodeScores } from '../utils/getAllEpisodeScores';
 import { calculateSeriesAverageScore } from '../utils/series';
 import { availableColumnsToSort } from '../utils/sortByColumn';
 import { getSortedSearchResult } from '../utils/sortItems';
@@ -112,10 +111,7 @@ export class IMDb implements IMDbCliInterface {
   public async getSeriesInfo(): Promise<void> {
     const spinner = ora('Searching IMDb for series to calculate average season score. Please wait...').start();
     try {
-      const fullSeries = isIMDbId(this.query) ?
-        await getFullSeriesFromId(this.query) :
-        await getFullSeriesFromTitle(this.query);
-
+      const fullSeries = await getFullSeriesFromQuery(this.query);
       if (!fullSeries || !fullSeries.seasons.length) {
         renderer.renderErrorString(`\nCould not find a series matching '${this.query}'. Please try again.`);
         process.exit();
@@ -123,6 +119,23 @@ export class IMDb implements IMDbCliInterface {
       const seriesAverage = calculateSeriesAverageScore(fullSeries);
       spinner.stop();
       renderer.renderTable(getFormattedSeriesScore(seriesAverage));
+    } catch (e) {
+      spinner.stop();
+      renderer.renderErrorInfo('Program exit with error', e);
+    }
+  }
+
+  public async renderEpisodeGraph(): Promise<void> {
+    const spinner = ora('Searching IMDb for series to render episode graph for. Please wait...').start();
+    try {
+      const fullSeries = await getFullSeriesFromQuery(this.query);
+      if (!fullSeries || !fullSeries.seasons.length) {
+        renderer.renderErrorString(`\nCould not find a series matching '${this.query}'. Please try again.`);
+        process.exit();
+      }
+      const allEpisodes = getAllEpisodeScores(fullSeries);
+      spinner.stop();
+      renderer.renderAsciiChart(allEpisodes);
     } catch (e) {
       spinner.stop();
       renderer.renderErrorInfo('Program exit with error', e);

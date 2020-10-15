@@ -10,12 +10,17 @@ import { inputQuestion } from './settings/userInput';
  */
 export const runCLI = async (cliProgram: program.CommanderStatic) => {
   const imdbInstance = createCLI(cliProgram);
-
-  if (hasUserInput(cliProgram, 'title') && hasUserInput(cliProgram, 'info')) {
+  const cliArgs = hasCLIArgs(cliProgram);
+  if (cliArgs('title') && cliArgs('info')) {
     imdbInstance.getSeriesInfo();
     return;
   }
-  if (hasUserInput(cliProgram, 'title')) {
+
+  if (cliArgs('title') && cliArgs('graph')) {
+    imdbInstance.renderEpisodeGraph();
+    return;
+  }
+  if (cliArgs('title')) {
     imdbInstance.run();
     return;
   }
@@ -25,4 +30,4 @@ export const runCLI = async (cliProgram: program.CommanderStatic) => {
   imdbInstance.run();
 };
 
-const hasUserInput = (cliProgram: program.CommanderStatic, input: string) =>  !!cliProgram[input];
+const hasCLIArgs = (cliProgram: program.CommanderStatic) => (input: string) => !!cliProgram[input];

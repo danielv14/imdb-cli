@@ -40,4 +40,9 @@ export const commandOptions: CommandOption[] = [
     full: '--info',
     description: 'Get averege season score for a series. Use this flag alongside --title flag',
   },
+  {
+    short: '-g',
+    full: '--graph',
+    description: 'Display series episode scores with a graph. Use this flag alongside --title flag',
+  },
 ];

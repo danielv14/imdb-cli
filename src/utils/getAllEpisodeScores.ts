@@ -1,14 +1,12 @@
-import * as asciichart from 'asciichart';
-import { Season, Series } from '../types/series';
-import { episodeRatingAsNumber, isEpisodeRated, isEpisodeReleased } from './episode';
+import { Series } from '../types/series';
+import { isEpisodeRated, isEpisodeReleased } from './episode';
 
 export const getAllEpisodeScores = (series: Series): number[] => {
   const allEpisodes = series.seasons.reduce((episodes, currentSeason) => {
     const currentEpisodes = currentSeason.episodes
       .filter(isEpisodeReleased)
-      .filter(isEpisodeRated)
-      .map(episodeRatingAsNumber);
-    currentEpisodes.forEach((rating) => episodes.push(rating));
+      .filter(isEpisodeRated);
+    currentEpisodes.forEach((episode) => episodes.push(episode.imdbRating));
     return episodes;
   }, [] as number[]);
   return allEpisodes;
