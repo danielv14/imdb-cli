@@ -1,5 +1,5 @@
 import orderBy from 'lodash/orderBy';
-import { SearchResultSortColumn, SortObject  } from '../types/searchResult';
+import { SearchResultSortColumn, SortObject  } from '../../types/searchResult';
 
 /**
  * Get a sorted array of objects sorted by object key value and by asc or desc order

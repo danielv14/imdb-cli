@@ -13,8 +13,8 @@ import {
 } from '../types/searchResult';
 import { getAllEpisodeScores } from '../utils/getAllEpisodeScores';
 import { calculateSeriesAverageScore } from '../utils/series';
-import { availableColumnsToSort } from '../utils/sortByColumn';
-import { getSortedSearchResult } from '../utils/sortItems';
+import { availableColumnsToSort } from '../utils/sorting/sortByColumn';
+import { getSortedSearchResult } from '../utils/sorting/sortItems';
 import { getFormattedItem } from './mappings/formattedItem';
 import { getFormattedSeriesScore } from './mappings/seriesScore';
 import * as renderer from './renderer/renderer';
