@@ -42,6 +42,6 @@ export const hexColor = (hex: string) => chalk.hex(hex);
 
 export const renderText = (text: string) => console.log(text);
 
-export const renderAsciiChart = (input: number[]) => console.log(asciichart.plot(input, { height:  20 }));
+export const renderAsciiChart = (input: number[]) => console.log(asciichart.plot(input, { height:  15 }));
 
 export const renderWithColor = hexColor(CLI_COLOR);
