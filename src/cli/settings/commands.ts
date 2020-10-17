@@ -18,17 +18,17 @@ export const commandOptions: CommandOption[] = [
   {
     short: '-t',
     full: '--title [title]',
-    description: 'Search by a specific title. If omitted the program will prompt you for a title to search for',
+    description: 'Title of movie or series to search for',
   },
   {
     short: '-m',
     full: '--movies',
-    description: 'Search by movies only. Cannot be used alongside \'series\' parameter',
+    description: 'Search by movies only',
   },
   {
     short: '-s',
     full: '--series',
-    description: 'Search by series only. Cannot be used alongside \'movie\' parameter',
+    description: 'Search by series only',
   },
   {
     short: '-o',
@@ -38,11 +38,11 @@ export const commandOptions: CommandOption[] = [
   {
     short: '-i',
     full: '--info',
-    description: 'Get averege season score for a series. Use this flag alongside --title flag',
+    description: 'Get averege season score for a series. Use this flag alongside "--title"',
   },
   {
     short: '-g',
     full: '--graph',
-    description: 'Display series episode scores with a graph. Use this flag alongside --title flag',
+    description: 'Display series episode scores with a graph. Use this flag alongside "--title"',
   },
 ];
