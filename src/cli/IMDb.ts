@@ -18,6 +18,7 @@ import { getSortedSearchResult } from '../utils/sorting/sortItems';
 import { getFormattedItem } from './mappings/formattedItem';
 import { getFormattedSeriesScore } from './mappings/seriesScore';
 import * as renderer from './renderer/renderer';
+import { cliConfig } from './settings/cliConfig';
 
 /**
  * Class to handle scraping of IMDb
@@ -34,10 +35,10 @@ export class IMDb implements IMDbCliInterface {
 
   constructor({
     query = '',
-    showPlot = false,
-    searchByType = SearchResultType.All,
-    limitPlot = 40,
-    sortColumn = SearchResultSortColumn.None,
+    showPlot = cliConfig.showPlotDefault,
+    searchByType = cliConfig.searchTypeDefault,
+    limitPlot = cliConfig.plotLimitDefault,
+    sortColumn = cliConfig.sortColumnOrderDefault,
   }) {
     this.query = query;
     this.showPlot = showPlot;
@@ -49,10 +50,7 @@ export class IMDb implements IMDbCliInterface {
   set searchQuery(query: any) {
     this.query = query;
   }
-  /**
-   * Render either a table with search results
-   * or a message of no search results were found
-   */
+
   public renderSearchResults(result?: FormattedItem[]): void {
     if (!result) {
       renderer.renderErrorString(`\nCould not find any search results for '${this.query}'. Please try again.`);
@@ -66,12 +64,6 @@ export class IMDb implements IMDbCliInterface {
     return;
   }
 
-  /**
-   * Get search result promise by query.
-   * Method will sanitize the input query
-   * @param {String} query
-   * @returns {Promise}
-   */
   public async getSearchResult(query: string): Promise<Item[]> {
     if (this.searchByType === SearchResultType.All) {
       return searchByQuery(query);
@@ -79,9 +71,6 @@ export class IMDb implements IMDbCliInterface {
     return searchByQueryAndType(query, this.searchByType);
   }
 
-  /**
-   * Run the CLI
-   */
   public async run(): Promise<void> {
     const spinner = ora('Searching IMDb. Please wait...').start();
     try {
@@ -135,7 +124,7 @@ export class IMDb implements IMDbCliInterface {
       }
       const allEpisodes = getAllEpisodeScores(fullSeries);
       spinner.stop();
-      if (allEpisodes.length > 400) {
+      if (allEpisodes.length > cliConfig.episodeGraphLimit) {
         renderer.renderErrorString('Too many episodes to display in a ratings graph.');
         renderer.renderText('\nTry using the "-i" flag instead of "-g" to display average season scores in a list.');
         return;
