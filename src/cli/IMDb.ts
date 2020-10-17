@@ -13,7 +13,6 @@ import {
 } from '../types/searchResult';
 import { getAllEpisodeScores } from '../utils/getAllEpisodeScores';
 import { calculateSeriesAverageScore } from '../utils/series';
-import { availableColumnsToSort } from '../utils/sorting/sortByColumn';
 import { getSortedSearchResult } from '../utils/sorting/sortItems';
 import { getFormattedItem } from './mappings/formattedItem';
 import { getFormattedSeriesScore } from './mappings/seriesScore';
@@ -51,7 +50,7 @@ export class IMDb implements IMDbCliInterface {
       renderer.renderErrorString(`\nCould not find any search results for '${this.query}'. Please try again.`);
       return;
     }
-    if (availableColumnsToSort.includes(this.sortColumn)) {
+    if (cliConfig.availableColumnsToSort.includes(this.sortColumn)) {
       renderer.renderTable(getSortedSearchResult(result, this.sortColumn));
       return;
     }

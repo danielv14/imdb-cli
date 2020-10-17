@@ -15,4 +15,7 @@ export const cliConfig = {
 
   // Set limit of amount of episodes to render in episode graph
   episodeGraphLimit: 400,
+
+  // Set the available columns that are sortable
+  availableColumnsToSort: [SearchResultSortColumn.Year, SearchResultSortColumn.Title],
 };
