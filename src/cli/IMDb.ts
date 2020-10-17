@@ -1,7 +1,6 @@
 import ora from 'ora';
 import {
-  getFullSeriesFromId,
-  getFullSeriesFromTitle,
+  getFullSeriesFromQuery,
   getItemsByIds,
   searchByQuery,
   searchByQueryAndType,
@@ -12,19 +11,14 @@ import {
   SearchResultSortColumn,
   SearchResultType,
 } from '../types/searchResult';
-import { isIMDbId } from '../utils/isIMDbId';
+import { getAllEpisodeScores } from '../utils/getAllEpisodeScores';
 import { calculateSeriesAverageScore } from '../utils/series';
-import { availableColumnsToSort } from '../utils/sortByColumn';
-import { getSortedSearchResult } from '../utils/sortItems';
+import { getSortedSearchResult } from '../utils/sorting/sortItems';
 import { getFormattedItem } from './mappings/formattedItem';
 import { getFormattedSeriesScore } from './mappings/seriesScore';
 import * as renderer from './renderer/renderer';
+import { cliConfig } from './settings/cliConfig';
 
-/**
- * Class to handle scraping of IMDb
- *
- * @class IMDb
- */
 export class IMDb implements IMDbCliInterface {
 
   public query: string;
@@ -35,10 +29,10 @@ export class IMDb implements IMDbCliInterface {
 
   constructor({
     query = '',
-    showPlot = false,
-    searchByType = SearchResultType.All,
-    limitPlot = 40,
-    sortColumn = SearchResultSortColumn.None,
+    showPlot = cliConfig.showPlotDefault,
+    searchByType = cliConfig.searchTypeDefault,
+    limitPlot = cliConfig.plotLimitDefault,
+    sortColumn = cliConfig.sortColumnOrderDefault,
   }) {
     this.query = query;
     this.showPlot = showPlot;
@@ -50,16 +44,13 @@ export class IMDb implements IMDbCliInterface {
   set searchQuery(query: any) {
     this.query = query;
   }
-  /**
-   * Render either a table with search results
-   * or a message of no search results were found
-   */
+
   public renderSearchResults(result?: FormattedItem[]): void {
     if (!result) {
       renderer.renderErrorString(`\nCould not find any search results for '${this.query}'. Please try again.`);
       return;
     }
-    if (availableColumnsToSort.includes(this.sortColumn)) {
+    if (cliConfig.availableColumnsToSort.includes(this.sortColumn)) {
       renderer.renderTable(getSortedSearchResult(result, this.sortColumn));
       return;
     }
@@ -67,12 +58,6 @@ export class IMDb implements IMDbCliInterface {
     return;
   }
 
-  /**
-   * Get search result promise by query.
-   * Method will sanitize the input query
-   * @param {String} query
-   * @returns {Promise}
-   */
   public async getSearchResult(query: string): Promise<Item[]> {
     if (this.searchByType === SearchResultType.All) {
       return searchByQuery(query);
@@ -80,9 +65,6 @@ export class IMDb implements IMDbCliInterface {
     return searchByQueryAndType(query, this.searchByType);
   }
 
-  /**
-   * Run the CLI
-   */
   public async run(): Promise<void> {
     const spinner = ora('Searching IMDb. Please wait...').start();
     try {
@@ -112,10 +94,7 @@ export class IMDb implements IMDbCliInterface {
   public async getSeriesInfo(): Promise<void> {
     const spinner = ora('Searching IMDb for series to calculate average season score. Please wait...').start();
     try {
-      const fullSeries = isIMDbId(this.query) ?
-        await getFullSeriesFromId(this.query) :
-        await getFullSeriesFromTitle(this.query);
-
+      const fullSeries = await getFullSeriesFromQuery(this.query);
       if (!fullSeries || !fullSeries.seasons.length) {
         renderer.renderErrorString(`\nCould not find a series matching '${this.query}'. Please try again.`);
         process.exit();
@@ -123,6 +102,30 @@ export class IMDb implements IMDbCliInterface {
       const seriesAverage = calculateSeriesAverageScore(fullSeries);
       spinner.stop();
       renderer.renderTable(getFormattedSeriesScore(seriesAverage));
+    } catch (e) {
+      spinner.stop();
+      renderer.renderErrorInfo('Program exit with error', e);
+    }
+  }
+
+  public async renderEpisodeGraph(): Promise<void> {
+    const spinner = ora('Searching IMDb for series to render episode graph for. Please wait...').start();
+    try {
+      const fullSeries = await getFullSeriesFromQuery(this.query);
+      if (!fullSeries || !fullSeries.seasons.length) {
+        renderer.renderErrorString(`\nCould not find a series matching '${this.query}'. Please try again.`);
+        process.exit();
+      }
+      const allEpisodes = getAllEpisodeScores(fullSeries);
+      spinner.stop();
+      if (allEpisodes.length > cliConfig.episodeGraphLimit) {
+        renderer.renderErrorString('Too many episodes to display in a ratings graph.');
+        renderer.renderText('\nTry using the "-i" flag instead of "-g" to display average season scores in a list.');
+        return;
+      }
+      renderer.renderText(`Ratings graph for series "${fullSeries.title}"\n`);
+      // Pad episode count to try and scale ascii chart from 1-10
+      renderer.renderAsciiChart([0, ...allEpisodes]);
     } catch (e) {
       spinner.stop();
       renderer.renderErrorInfo('Program exit with error', e);

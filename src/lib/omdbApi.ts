@@ -1,7 +1,9 @@
+import { mapToSeason } from '../mappings/seasonMappings';
 import { FullItem, Item } from '../types/item';
 import { OmdbRequestParams, QueryParams } from '../types/request';
 import { SearchResultType } from '../types/searchResult';
-import { Season, Series } from '../types/series';
+import { Series } from '../types/series';
+import { isIMDbId } from '../utils/isIMDbId';
 import * as request from './request';
 
 const API_KEY = process.env.API_KEY;
@@ -11,13 +13,6 @@ const DEFAULT_API_PARAM = {
 };
 
 const get = (params: OmdbRequestParams) => request.get(BASE_URL, { ...DEFAULT_API_PARAM, ...params });
-
-const formatSeason = (data: any): Season => ({
-  title: data.Title,
-  seasonNumber: data.Season,
-  totalSeasons: data.totalSeasons,
-  episodes: data.Episodes,
-});
 
 const getNumberOfSeasons = (title: string, amount: number) => {
   const seasonsPromises = [];
@@ -59,7 +54,7 @@ export const getSeasonFromTitle = async (title: string, season: number) => {
     [QueryParams.Title]: title,
     [QueryParams.Season]: season,
   });
-  return formatSeason(data);
+  return mapToSeason(data);
 };
 
 export const getSeasonFromId = async (id: string, season: number) => {
@@ -67,7 +62,7 @@ export const getSeasonFromId = async (id: string, season: number) => {
     [QueryParams.Id]: id,
     [QueryParams.Season]: season,
   });
-  return formatSeason(data);
+  return mapToSeason(data);
 };
 
 export const getFullSeriesFromId = async (id: string) => {
@@ -84,3 +79,8 @@ export const getFullSeriesFromTitle = async (title: string) => {
     seasons,
   } as Series;
 };
+
+export const getFullSeriesFromQuery = (query: string) =>
+  isIMDbId(query) ?
+  getFullSeriesFromId(query) :
+  getFullSeriesFromTitle(query);
