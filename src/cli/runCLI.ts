@@ -6,7 +6,6 @@ import { inputQuestion } from './settings/userInput';
 /**
  * Run the CLI program by creating a instance of IMDb CLI
  * and run methods from it based of user input
- * @param cliProgram program.CommanderStatic
  */
 export const runCLI = async (cliProgram: program.CommanderStatic) => {
   const imdbInstance = createCLI(cliProgram);

@@ -20,11 +20,6 @@ import { getFormattedSeriesScore } from './mappings/seriesScore';
 import * as renderer from './renderer/renderer';
 import { cliConfig } from './settings/cliConfig';
 
-/**
- * Class to handle scraping of IMDb
- *
- * @class IMDb
- */
 export class IMDb implements IMDbCliInterface {
 
   public query: string;

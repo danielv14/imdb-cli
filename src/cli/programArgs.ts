@@ -5,7 +5,6 @@ import { packageVersion } from './settings/version';
 
 /**
  * Process cli arguments and parse process.argv
- * @param cliProgram
  */
 export const processProgramArgs = (cliProgram: program.CommanderStatic) => {
   cliProgram
