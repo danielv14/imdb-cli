@@ -9,7 +9,7 @@ export interface Episode {
   Title: string;
   Released: string;
   Episode: string;
-  imdbRating: string;
+  imdbRating: number;
   imdbId: string;
 }
 

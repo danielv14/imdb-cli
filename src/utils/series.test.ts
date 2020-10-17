@@ -1,6 +1,6 @@
 import { getFullSeriesFromTitle } from '../lib/omdbApi';
 import * as seriesMock from '../mock/seriesMock';
-import { Season } from '../types/series';
+import { Episode, Season } from '../types/series';
 import {
   calculateEpisodeAverageScore,
   calculateSeasonAverageScore,
@@ -14,7 +14,8 @@ describe('utils/series', () => {
       expect(calculateEpisodeAverageScore(seriesMock.EPISODES_S01)).toEqual(seriesMock.SCORE_S01);
     });
     it('should exluce episodes which has no valid score', () => {
-      expect(calculateEpisodeAverageScore(seriesMock.EPISODES_S01_INVALID)).toEqual(seriesMock.SCORE_S01);
+      const episodes = seriesMock.EPISODES_S01_INVALID as unknown as Episode[];
+      expect(calculateEpisodeAverageScore(episodes)).toEqual(seriesMock.SCORE_S01);
     });
   });
   describe('calculateSeasonAverageScore()', () => {
@@ -24,7 +25,7 @@ describe('utils/series', () => {
       .toEqual(seriesMock.SEASON1.seasonNumber);
     });
     it('should handle seasons not yet released', () => {
-      const invalidSeason = { ...seriesMock.SEASON1, episodes: [seriesMock.EPISODE_NOT_RELEASED] } as Season;
+      const invalidSeason = { ...seriesMock.SEASON1, episodes: [seriesMock.EPISODE_NOT_RELEASED] } as unknown as Season;
       expect(calculateSeasonAverageScore(invalidSeason).AverageScore).toEqual(NOT_RELEASED_TEXT);
     });
   });

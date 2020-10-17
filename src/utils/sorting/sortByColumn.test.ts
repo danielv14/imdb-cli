@@ -1,4 +1,4 @@
-import { SearchResultSortColumn, SearchResultSortOrder, SearchResultType, SortOrder } from '../types/searchResult';
+import { SearchResultSortColumn, SearchResultSortOrder, SearchResultType, SortOrder } from '../../types/searchResult';
 import { sortByColumn } from './sortByColumn';
 
 describe('utils/sortByColumn', () => {

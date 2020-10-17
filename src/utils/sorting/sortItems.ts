@@ -1,5 +1,5 @@
-import { FormattedItem } from '../types/item';
-import { SearchResultSortColumn, SearchResultSortOrder, SortOrder } from '../types/searchResult';
+import { FormattedItem } from '../../types/item';
+import { SearchResultSortColumn, SearchResultSortOrder, SortOrder } from '../../types/searchResult';
 import { sortByColumn } from './sortByColumn';
 
 export const getSortedSearchResult = (result: FormattedItem[], sortBy: SearchResultSortColumn) => {
