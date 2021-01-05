@@ -20,7 +20,7 @@
   "license": "ISC",
   "dependencies": {
     "asciichart": "^1.5.25",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "chalk": "^2.4.2",
     "clear": "0.0.1",
     "commander": "^2.20.0",
